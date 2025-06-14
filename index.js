@@ -39,6 +39,7 @@ function ReadManifest() {
       ],
       "types": [
         "movie",
+        "series",
         "anime",
         "other"
       ],

@@ -3,8 +3,9 @@ const subtitles = express.Router()
 
 require('dotenv').config()//process.env.var
 
-//MetadataHandler = import("./TMDB.js")
 const Metadata = require('./metadata_copy.js')
+const jimakuAPI = require('./jimaku.js')
+const aniListAPI = require('./anilist.js')
 
 /**
  * Tipical express middleware callback.
@@ -32,10 +33,62 @@ function HandleLongSubRequest(req, res, next) {
  */
 function HandleSubRequest(req, res, next) {
   console.log(`\x1b[96mEntered HandleSubRequest with\x1b[39m ${req.originalUrl}`)
-  console.log('\x1b[33mGot a movie\x1b[39m')
-  //console.log('Extra parameters:', res.locals.extraParams)
-  const videoID = req.params.videoId
-  Metadata.GetTMDBMeta(videoID).then((TMDBmeta) => {
+  const videoID = req.params.videoId.split(':')[0] //We only want the first part of the videoID, which is the IMDB ID, the rest could be the season and episode
+  console.log(`\x1b[33mGot a ${req.params.type} with ID: ${videoID}\x1b[39m`)
+  console.log('Extra parameters:', res.locals.extraParams)
+  //get title from TMDB or Cinemeta metadata
+  const titlePromise = Metadata.GetTMDBMeta(videoID).then((TMDBmeta) => {
+    console.log('\x1b[36mGot TMDB metadata:\x1b[39m', TMDBmeta.shortPrint())
+    return TMDBmeta.title //We can use this to search for Jimaku subtitles
+  }).catch((reason) => {
+    console.error("\x1b[31mDidn't get TMDB metadata because:\x1b[39m " + reason + ", trying Cinemeta...")
+    return Metadata.GetCinemetaMeta(videoID).then((Cinemeta) => {
+      console.log('\x1b[36mGot Cinemeta metadata:\x1b[39m', Cinemeta.shortPrint())
+      return Cinemeta.title //We can use this to search for Jimaku subtitles
+    })
+  }).catch((err) => {
+    console.error('\x1b[31mFailed on metadata:\x1b[39m ' + err)
+    res.json({ subtitles: [], message: "Failed getting media info" });
+    next()
+  })
+  const jimakuIDPromise = titlePromise.then((title) => {
+    if (!title) { throw Error("No title found in metadata!") } //If we don't have a title, we can't search for subtitles
+    console.log('\x1b[33mSearching for Jimaku subtitles for\x1b[39m', title)
+    return jimakuAPI.SearchForJimakuEntry(title).then((jimakuEntry) => {
+      return jimakuEntry.id
+    }).catch((reason) => {
+      console.error("\x1b[31mDidn't get Jimaku entry because:\x1b[39m " + reason + ", trying AniList...")
+      return aniListAPI.GetAniListID(title).then((aniListEntry) => {
+        return jimakuAPI.GetJimakuEntryFromAniList(aniListEntry.id)
+          .then((jimakuEntry) => {
+            return jimakuEntry.id
+          })
+      })
+    })
+  }).catch((err) => {
+    console.error('\x1b[31mFailed on jimakuID:\x1b[39m ' + err)
+    res.json({ subtitles: [], message: "Failed getting jimakuID" });
+    next()
+  })
+
+  jimakuIDPromise.then((jimakuID) => {
+    if (!jimakuID) { throw Error("No jimakuID!") } //If we don't have a title, we can't search for subtitles
+    console.log('\x1b[36mGot Jimaku ID:\x1b[39m', jimakuID)
+    return jimakuAPI.GetJimakuFiles(jimakuID).then((jimakuFiles) => {
+      console.log('\x1b[36mGot Jimaku files:\x1b[39m', jimakuFiles)
+      //We can now respond with the subtitles
+      res.json(jimakuFiles);
+      next()
+    }).catch((err) => {
+      console.error('\x1b[31mFailed getting Jimaku files:\x1b[39m ' + err)
+      res.json({ subtitles: [], message: "Failed getting Jimaku files" });
+      next()
+    })
+  }).catch((err) => {
+    if (err.message === "No jimakuID!")
+      console.error('\x1b[31mFailed getting Jimaku files:\x1b[39m ' + err)
+  })
+  /*Metadata.GetTMDBMeta(videoID).then((TMDBmeta) => {
     console.log('\x1b[36mGot TMDB metadata:\x1b[39m', TMDBmeta.shortPrint())
     res.json({ subtitles: [{ id: 1, url: "about:blank", lang: "LB-TMDBOK" }], message: "Got TMDB metadata" });
     next()
@@ -50,7 +103,7 @@ function HandleSubRequest(req, res, next) {
     console.error('\x1b[31mFailed:\x1b[39m ' + err)
     res.json({ subtitles: [], message: "Failed getting movie info" });
     next()
-  })
+  })*/
 }
 /** 
  * Parses the extra config parameter we can get when the addon is configured

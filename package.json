@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Pigamer37/letterboxd-stremio-addon.git"
+    "url": "git+https://github.com/Pigamer37/jp-subs-stremio-addon.git"
   },
   "keywords": [
     "stremio",
@@ -19,9 +19,9 @@
   "author": "Pigamer37",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Pigamer37/letterboxd-stremio-addon/issues"
+    "url": "https://github.com/Pigamer37/jp-subs-stremio-addon/issues"
   },
-  "homepage": "https://github.com/Pigamer37/letterboxd-stremio-addon#readme",
+  "homepage": "https://github.com/Pigamer37/jp-subs-stremio-addon#readme",
   "dependencies": {
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
