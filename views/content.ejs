@@ -1,0 +1,46 @@
+<div>
+  <% if (logged_in) { %>
+  <h3>Signed in as <%= user %></h3>
+  <div class="separator"></div>
+  <div style="display: flex;flex-direction:column;">
+    <label class="full-width label-to-top" style="display:block;" for="manifest_url">Your manifest URL:</label>
+    <textarea class="form-element" id="manifest_url" rows="1"
+      style="resize:none;overflow:hidden;text-align:center;font-size:unset;"
+      readonly><%= `https://${base_url}/${config}/manifest.json` %></textarea>
+    <script>const ta = document.getElementById('manifest_url'); ta.style.minWidth = ta.scrollWidth + "px";</script>
+  </div>
+  <button class="full-width" onclick="{navigator.clipboard.writeText(getElementById('manifest_url').value).then((e)=>{
+          console.log('copied!');event.target.innerText='Copied!';setTimeout(function(){
+            this.innerText='Copy result to clipboard'
+        ;}.bind(event.target), 3000);}).catch((error)=>{console.error(error);})}">
+    Copy manifest URL
+  </button>
+
+  <button class="full-width" onclick="location.href='<%= `stremio://${base_url}/${config}/manifest.json` %>'">
+    Open In Stremio
+  </button>
+
+  <div>
+    <button class="full-width" onclick="location.href='<%= `https://${base_url}/refresh` %>'">
+      Refresh Letterboxd Session
+    </button>
+  </div>
+
+  <div>
+    <button class="full-width" onclick="location.href='<%= `https://${base_url}/logout` %>'">
+      Logout
+    </button>
+  </div>
+
+  <% } else { %>
+  <div class="addon">
+    <h2>Log in to Letterboxd to configure your addon!</h2>
+    <div class="separator"></div>
+    <div>
+      <button onclick="location.href='<%= `https://${base_url}/auth` %>'">
+        Sign in with Letterboxd
+      </button>
+    </div>
+  </div>
+  <% } %>
+</div>

@@ -1,0 +1,34 @@
+{
+  "name": "jp-subs-stremio-addon",
+  "version": "0.0.2",
+  "description": "Node.js addon trying to add japanese subtitles to Stremio. (I'm new to backend so I'm using it as a learning experience)",
+  "main": "index.js",
+  "scripts": {
+    "devStart": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pigamer37/letterboxd-stremio-addon.git"
+  },
+  "keywords": [
+    "stremio",
+    "node.js",
+    "express.js",
+    "japanese"
+  ],
+  "author": "Pigamer37",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Pigamer37/letterboxd-stremio-addon/issues"
+  },
+  "homepage": "https://github.com/Pigamer37/letterboxd-stremio-addon#readme",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.21.1",
+    "stremio-addon-sdk": "^1.6.10"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
