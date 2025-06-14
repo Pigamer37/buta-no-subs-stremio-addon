@@ -80,7 +80,7 @@ function ParseJimakuFiles(data) {
     let subEntry = data[i];
     if (!subEntry.name.endsWith(".srt") && !subEntry.name.endsWith(".ass")) continue //Only subtitle files
     //We can now respond with the subtitles
-    subtitles.push({ id: `${i+1}`, url: subEntry.url, lang: "ja" });
+    subtitles.push({ id: `${i+1}`, url: subEntry.url, lang: "jpn" });
   }
   return { subtitles: subtitles, message: "Got Japanese subtitles" };
 }
