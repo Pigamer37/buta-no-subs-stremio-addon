@@ -33,8 +33,11 @@ function HandleLongSubRequest(req, res, next) {
  */
 function HandleSubRequest(req, res, next) {
   console.log(`\x1b[96mEntered HandleSubRequest with\x1b[39m ${req.originalUrl}`)
-  const videoID = req.params.videoId.split(':')[0] //We only want the first part of the videoID, which is the IMDB ID, the rest could be the season and episode
-  console.log(`\x1b[33mGot a ${req.params.type} with ID: ${videoID}\x1b[39m`)
+  const idDetails = req.params.videoId.split(':')
+  const videoID = idDetails[0] //We only want the first part of the videoID, which is the IMDB ID, the rest would be the season and episode
+  const season = idDetails[1] //undefined if we don't get a season number in the query, which is fine
+  const episode = idDetails[2] //undefined if we don't get an episode number in the query, which is fine
+  console.log(`\x1b[33mGot a ${req.params.type} with ID:\x1b[39m ${videoID}`)
   console.log('Extra parameters:', res.locals.extraParams)
   //get title from TMDB or Cinemeta metadata
   const titlePromise = Metadata.GetTMDBMeta(videoID).then((TMDBmeta) => {
@@ -53,13 +56,15 @@ function HandleSubRequest(req, res, next) {
   })
   const jimakuIDPromise = titlePromise.then((title) => {
     if (!title) { throw Error("No title found in metadata!") } //If we don't have a title, we can't search for subtitles
+    if (season !== undefined && season !== "1") { title += ` ${season}` } //If we have a season, append it to the title
     console.log('\x1b[33mSearching for Jimaku subtitles for\x1b[39m', title)
     return jimakuAPI.SearchForJimakuEntry(title).then((jimakuEntry) => {
       return jimakuEntry.id
     }).catch((reason) => {
       console.error("\x1b[31mDidn't get Jimaku entry because:\x1b[39m " + reason + ", trying AniList...")
-      return aniListAPI.GetAniListID(title).then((aniListEntry) => {
-        return jimakuAPI.GetJimakuEntryFromAniList(aniListEntry.id)
+      return aniListAPI.GetAniListID(title).then((aniListID) => {
+        console.log('\x1b[36mGot AniList ID:\x1b[39m', aniListID)
+        return jimakuAPI.GetJimakuEntryFromAniList(aniListID)
           .then((jimakuEntry) => {
             return jimakuEntry.id
           })
@@ -74,7 +79,7 @@ function HandleSubRequest(req, res, next) {
   jimakuIDPromise.then((jimakuID) => {
     if (!jimakuID) { throw Error("No jimakuID!") } //If we don't have a title, we can't search for subtitles
     console.log('\x1b[36mGot Jimaku ID:\x1b[39m', jimakuID)
-    return jimakuAPI.GetJimakuFiles(jimakuID).then((jimakuFiles) => {
+    return jimakuAPI.GetJimakuFiles(jimakuID, episode).then((jimakuFiles) => {
       console.log('\x1b[36mGot Jimaku files:\x1b[39m', jimakuFiles)
       //We can now respond with the subtitles
       res.json(jimakuFiles);

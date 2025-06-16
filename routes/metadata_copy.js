@@ -28,11 +28,11 @@ class Metadata {
     else if (typeof releaseDate === 'string') { this.releaseDate = new Date(releaseDate) }
   }
   shortPrint() {
-    return `${this.title}, a ${this.type} released ${this.releaseDate.toDateString()}`;
+    return `${this.title}, a ${(this.type==="tv")?"series":this.type} released ${this.releaseDate.toDateString()}`;
   }
   fullPrint() {
     return `${this.title}, a` + (adult !== undefined) ? "n adult" : "" +
-      ` ${this.type} released ${this.releaseDate.toDateString()}.\n
+      ` ${(this.type==="tv")?"series":this.type} released ${this.releaseDate.toDateString()}.\n
     Overview: ${this.summary}`;
   }
   imdbID;

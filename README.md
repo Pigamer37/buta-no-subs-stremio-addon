@@ -1,11 +1,8 @@
 # letterboxd-stremio-addon
- Node.js & Express based addon trying to sync watched movies on Stremio with Letterboxd activity. (I'm new to backend so I'm using it as a learning experience).
-
-> [!WARNING]
-> The Letterboxd API is not yet available for personal projects, and thus I can't get access to it yet. I'm brainstorming ways to achieve the same results without the API but they seem insecure or kind of hacky.
+ Node.js & Express based addon trying to provide Japanese subtitles to Stremio. (I'm new to backend so I'm using it as a learning experience).
 
 ## Normal program flow:
-Whenever you start watching something on Stremio that matches some parameters set in the manifest (generated on `index.js`), the platform will call this addon. When the program can get the data for the item you are watching, it will let you know by having a language entry in the subtitles that looks something like `LB-[source of data, either TMDB or the Cinemeta addon]OK`. When it can't get the data, the entry wont be available.
+Whenever you start watching something on Stremio that matches some parameters set in the manifest (generated on `index.js`), the platform will call this addon. When the program can get the data for the item you are watching, it will appear in the subtitles menu under the japanese language, and each of the subtitle files will be labeled with a number so you can select wich one to use. When it can't get the data, the entry wont be available.
 #### Future flow:
 When getting the data correctly, which is necessary for the following steps, log activity on the user's Letterboxd account.<br>
 Hypothetical: Update new Stremio Library items on Letterboxd's watchlist, or create a Stremio catalog based on the watchlist.
@@ -14,11 +11,12 @@ Hypothetical: Update new Stremio Library items on Letterboxd's watchlist, or cre
 > [!IMPORTANT]
 > 0. Previous steps/requirements:
 >  - This project runs on Node.js, so install both Node.js and the npm package manager
->  - You'll need to get all necessary API keys. Right now you only need to get keys for the TMDB API, which is free. In the future, you will probably need a Letterboxd API key too
+>  - You'll need to get all necessary API keys. Right now you only need to get keys for the TMDB API, Jimaku API, which are free. This addon uses the AniList API as a backup, but that one doesn't need a key for publicly accessible data
 >  - Enter those parameters inside a .env file like this (you don't need to install the dotenv npm package manually, the next steps will take care of project dependencies):
 >    ```
->    TMDB_API_READ_TOKEN = "yourTMDBAPIkey"
->    LETTERBOXD_API_TOKEN = "yourLetterboxdAPIkey"
+>    TMDB_API_READ_TOKEN = yourTMDBAPIReadToken
+>    TMDB_API_KEY = yourTMDBAPIkey
+>    JIMAKU_API_KEY = yourJimakuAPIkey
 >    ```
 1. Clone the repo/dowload the code on your machine however you like, and navigate to the project's directory (where `package.json` resides)
 2. Run the following command to install all necessary dependencies based on `package.json`:
@@ -40,22 +38,19 @@ Hypothetical: Update new Stremio Library items on Letterboxd's watchlist, or cre
 >
 > In case TMDB doesn't work, the [Cinemeta Stremio Addon](https://v3-cinemeta.strem.io/) will be used to get the item's metadata
 
-Based on [Sagetendo's MAL-Stremio Addon](https://github.com/SageTendo/mal-stremio-addon), wich in turn bases itself on another utility. Even if it uses a different language (Python) and thus different frameworks, it has been hugely helpful for understanding the flow and routing necessary to do this kind of thing. Thank you @SageTendo !
-
 ## TO DO:
-- [ ] Get access to letterboxd API
-- [ ] https://github.com/Pigamer37/letterboxd-stremio-addon/issues/5
-- [ ] Configure DataBase (will probably use MongoDB, but feel free to recommend other options)
-- [ ] https://github.com/Pigamer37/letterboxd-stremio-addon/issues/6
+- [ ] Support kitsunekko as a backup (doesn't have an API so it will be difficult)
+- [ ] Maybe use some of the functionallity from [japsub-api](https://github.com/HasanAbbadi/japsub-api)
+- [ ] Publish to Stremio Addon Catalog
 
 ### Enhancements/new features
 - [ ] Investigate Stremio API
-- [ ] Create catalog based on the user's letterboxd watchlist, probably using [`stremio-imdb-list`](https://github.com/jaruba/stremio-imdb-watchlist?tab=readme-ov-file#4-proxy-a-different-add-on-to-get-list-responses-based-on-list-id)
 
 ## Documentation used:
 - [Stremio Addon guide](https://stremio.github.io/stremio-addon-guide/basics)
 - [Stremio Addon docs](https://github.com/Stremio/stremio-addon-sdk/tree/master/docs)
-- [Letterboxd API docs](https://api-docs.letterboxd.com/)
+- [Jimaku API docs](https://jimaku.cc/api/docs)
+- [AniList API docs](https://docs.anilist.co/guide/graphql)
 - Node.js docs
 - Express.js docs
 - [MDN docs](https://developer.mozilla.org/en-US/docs/Web)

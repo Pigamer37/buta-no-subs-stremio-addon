@@ -28,7 +28,7 @@ exports.GetJimakuEntryFromTMDB = async function (tmdbID) {
 exports.GetJimakuEntryFromAniList = async function (aniListID) {
   const options = { headers: GetJimakuAuthToken() }
   return fetch(`${JIMAKU_API_BASE}/entries/search?anilist_id=${aniListID}`, options).then((resp) => {
-    if ((!resp.ok) || resp.status !== 200) throw Error(`HTTP error! Status: ${resp.status}`)  
+    if ((!resp.ok) || resp.status !== 200) throw Error(`HTTP error! Status: ${resp.status}`)
     if (resp === undefined) throw Error(`Undefined response!`)
     return resp.json()
   }).then((data) => {
@@ -60,9 +60,11 @@ exports.SearchForJimakuEntry = async function (query) {
  * @param {Number} jimakuID 
  * @returns 
  */
-exports.GetJimakuFiles = async function (jimakuID) {
+exports.GetJimakuFiles = async function (jimakuID, episodeNumber = undefined) {
   const options = { headers: GetJimakuAuthToken() }
-  return fetch(`${JIMAKU_API_BASE}/entries/${jimakuID}/files`, options).then((resp) => {
+  const reqURL = episodeNumber ? `${JIMAKU_API_BASE}/entries/${jimakuID}/files?episode=${episodeNumber}` : `${JIMAKU_API_BASE}/entries/${jimakuID}/files`
+  //If we have an episode number, we can try to get the files for that episode
+  return fetch(reqURL, options).then((resp) => {
     if ((!resp.ok) || resp.status !== 200) throw Error(`HTTP error! Status: ${resp.status}`)
     if (resp === undefined) throw Error(`undefined response!`)
     return resp.json()
@@ -80,7 +82,7 @@ function ParseJimakuFiles(data) {
     let subEntry = data[i];
     if (!subEntry.name.endsWith(".srt") && !subEntry.name.endsWith(".ass")) continue //Only subtitle files
     //We can now respond with the subtitles
-    subtitles.push({ id: `${i+1}`, url: subEntry.url, lang: "jpn" });
+    subtitles.push({ id: `${subtitles.length + 1}`, url: subEntry.url, lang: "jpn" });
   }
   return { subtitles: subtitles, message: "Got Japanese subtitles" };
 }
