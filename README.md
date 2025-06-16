@@ -1,4 +1,4 @@
-# letterboxd-stremio-addon
+# [jp-subs-stremio-addon](https://eb33844c60da-jp-subs-stremio-addon.baby-beamup.club/manifest.json)
  Node.js & Express based addon trying to provide Japanese subtitles to Stremio. (I'm new to backend so I'm using it as a learning experience).
 
 ## Normal program flow:
