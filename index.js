@@ -103,4 +103,4 @@ app.get("/:config/configure", (req, res) => {
 const subtitles = require("./routes/subtitles");
 app.use(subtitles);
 
-app.listen(3000);
+app.listen(process.env.PORT || 3000);
