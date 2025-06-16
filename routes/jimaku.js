@@ -78,11 +78,10 @@ exports.GetJimakuFiles = async function (jimakuID, episodeNumber = undefined) {
 function ParseJimakuFiles(data) {
   //data is an array of files
   let subtitles = []
-  for (let i = 0; i < data.length; i++) {
-    let subEntry = data[i];             //.ass subs not supported
+  for (const subEntry of data) {
     if (!subEntry.name.endsWith(".srt") /*&& !subEntry.name.endsWith(".ass")*/) continue //Only subtitle files
     //We can now respond with the subtitles
     subtitles.push({ id: `${subtitles.length + 1}`, url: subEntry.url, lang: "jpn" });
   }
-  return { subtitles: subtitles, message: "Got Japanese subtitles" };
+  return subtitles;
 }

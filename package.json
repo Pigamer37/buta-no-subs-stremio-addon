@@ -23,10 +23,10 @@
   },
   "homepage": "https://github.com/Pigamer37/jp-subs-stremio-addon#readme",
   "dependencies": {
+    "cheerio": "^1.1.0",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
-    "express": "^4.21.1",
-    "stremio-addon-sdk": "^1.6.10"
+    "express": "^4.21.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"

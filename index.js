@@ -2,7 +2,7 @@
 const express = require("express")
 const app = express()
 
-const { addonBuilder, serveHTTP, publishToCentral } = require('stremio-addon-sdk')
+//const { addonBuilder, serveHTTP, publishToCentral } = require('stremio-addon-sdk')
 
 function setCORS(req, res, next) {
   res.header(`Access-Control-Allow-Origin`, `*`);
