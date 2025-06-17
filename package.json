@@ -4,7 +4,7 @@
   "description": "Node.js addon trying to add japanese subtitles to Stremio. (I'm new to backend so I'm using it as a learning experience)",
   "main": "index.js",
   "scripts": {
-    "devStart": "nodemon index.js"
+    "devStart": "nodemon index.js --ignore kitsunekko_titles.json --ignore README"
   },
   "repository": {
     "type": "git",
@@ -26,7 +26,8 @@
     "cheerio": "^1.1.0",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
-    "express": "^4.21.1"
+    "express": "^4.21.1",
+    "fuzzysort": "^3.1.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"

@@ -53,7 +53,7 @@ Whenever you start watching something on Stremio that matches some parameters se
 - [ ] Publish to Stremio Addon Catalog (waiting for a response from the stremio team, because the beamup tool is not working for me)
 
 ### Enhancements/new features
-- [ ] "Cache" Kitsunekko Title list in a "global" variable (in `app.locals`, accessible in express middleware with `req.app.locals`) on launch and update periodically (probably with `setTimeout()`)
+- [X] "Cache" Kitsunekko Title list in a "global" variable (in `app.locals`, accessible in express middleware with `req.app.locals`) on launch and update periodically (probably with `setTimeout()`)
 - [ ] fuzzysort (probably with the npm package of the same name, it's a small dependency: <5MB) kitsunekko title list instead of looking for an exact match
 - [ ] Support kitsu and thus the kitsu Stremio addon (see [issue #2](/../../issues/2))
 - [ ] Touch up the views (the homepage, mainly)

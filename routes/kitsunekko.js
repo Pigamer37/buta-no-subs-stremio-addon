@@ -1,9 +1,37 @@
 /*Credit to HasanAbbadi's japsub-api (https://github.com/HasanAbbadi/japsub-api)*/
 const cheerio = require("cheerio");
+const fsPromises = require("fs/promises");
 
 const mainUrl = "https://kitsunekko.net";
-/**Gets all kitsunekko anime titles and url's*/
-exports.GetKitsunekkoTitles = async function() {
+
+exports.UpdateKitsunekkoTitleFile = function () {
+  return GetKitsunekkoTitlesFromWeb().then((titles) => {
+    console.log(`\x1b[36mGot ${titles.length} kitsunekko titles\x1b[39m, saving to kitsunekko_titles.json`)
+    return fsPromises.writeFile('./kitsunekko_titles.json', JSON.stringify(titles, (key, val) => {
+      return ((key === "date") || (key === "size")) ? undefined : val //Remove date and size from the JSON file, as they are not needed for the titles
+    }))
+  }).catch((err) => {
+    console.error('\x1b[31mFailed "caching" kitsunekko titles:\x1b[39m ' + err)
+    throw err
+  })
+}
+exports.SearchForKitsunekkoEntry = async function (title) {
+  return kitsunekkoAPI.GetKitsunekkoTitles().then((kitsunekkoTitles) => {
+    //TODO: fuzzy sort
+    let foundAnime = kitsunekkoTitles.find((el) => el.title === title)
+    if (!foundAnime) throw Error("No kitsunekko anime found with title: " + title)
+    else return foundAnime
+  })
+}
+/**Gets all kitsunekko anime titles and url's from "cache"*/
+GetKitsunekkoTitles = async function () {
+  return fsPromises.readFile('./kitsunekko_titles.json').catch((err) => {
+    console.error('\x1b[31mFailed reading kitsunekko titles cache:\x1b[39m ' + err)
+    return GetKitsunekkoTitlesFromWeb() //If the file doesn't exist, get the titles from the web
+  })
+}
+/**Gets all kitsunekko anime titles and url's from the web*/
+GetKitsunekkoTitlesFromWeb = async function () {
   const leadUrl = "/dirlist.php?dir=subtitles/japanese/&sort=date&order=desc";
   return await FetchTable(leadUrl)
 }
@@ -12,7 +40,7 @@ exports.GetKitsunekkoTitles = async function() {
  * @returns {Promise<Object>} - returns a promise that resolves to an object containing the subtitle objects
  */
 exports.GetKitsunekkoSubtitles = async function (url) {
-  return await FetchTable(url + '/&sort=date&order=desc').then((data) => {
+  return await FetchTable("/dirlist.php?dir=subtitles%2Fjapanese%2F" + url + '/&sort=date&order=desc').then((data) => {
     let subtitles = []
     for (const subEntry of data) {
       if (!subEntry.name.endsWith(".srt") /*&& !subEntry.name.endsWith(".ass")*/) continue //Only subtitle files
@@ -43,7 +71,7 @@ function GetTableData(body) {
       data.push({
         title: $(el).find("td > a > strong").text(), //undefined when getting subtitles
         size: $(el).find("td.tdleft").text().trim(), //undefined when getting titles
-        url,
+        url: url.replace("/dirlist.php?dir=subtitles%2Fjapanese%2F", ""),
         date: new Date($(el).find("td.tdright").attr("title"))
       })
     }

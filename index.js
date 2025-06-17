@@ -4,7 +4,7 @@ const app = express()
 
 //const { addonBuilder, serveHTTP, publishToCentral } = require('stremio-addon-sdk')
 
-function setCORS(req, res, next) {
+function setCORS(_req, res, next) {
   res.header(`Access-Control-Allow-Origin`, `*`);
   res.header(`Access-Control-Allow-Methods`, `GET,PUT,POST,DELETE`);
   res.header(`Access-Control-Allow-Headers`, `Content-Type`);
@@ -52,7 +52,7 @@ function ReadManifest() {
   })
 }
 
-app.get("/manifest.json", (req, res) => {
+app.get("/manifest.json", (_req, res) => {
   ReadManifest().then((manif) => {
     //manif.behaviorHints.configurationRequired = true
     res.json(manif);
@@ -61,7 +61,7 @@ app.get("/manifest.json", (req, res) => {
   })
 })
 
-app.get("/:config/manifest.json", (req, res) => {
+app.get("/:config/manifest.json", (_req, res) => {
   ReadManifest().then((manif) => {
     //console.log("Params:", decodeURIComponent(req.params[0]))
     res.json(manif);
@@ -103,4 +103,11 @@ app.get("/:config/configure", (req, res) => {
 const subtitles = require("./routes/subtitles");
 app.use(subtitles);
 
-app.listen(process.env.PORT || 3000);
+app.listen(process.env.PORT || 3000, () => {
+  console.log(`\x1b[32mjp-subs-stremio-addon is listening on port ${process.env.PORT || 3000}\x1b[39m`)
+  const kitsunekkoAPI = require('./routes/kitsunekko.js')
+  kitsunekkoAPI.UpdateKitsunekkoTitleFile().then(() => {
+    console.log('\x1b[32mKitsunekko titles "cached" successfully!\x1b[39m')
+    setInterval(kitsunekkoAPI.UpdateKitsunekkoTitleFile, 86400000); //Update every 24h
+  })
+});

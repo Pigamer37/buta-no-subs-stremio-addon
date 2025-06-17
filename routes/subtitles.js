@@ -96,11 +96,8 @@ function HandleSubRequest(req, res, next) {
       })
     })
 
-    const kitsunekkoPromise = kitsunekkoAPI.GetKitsunekkoTitles().then((kitsunekkoTitles) => {
-      //TODO: fuzzy sort
+    const kitsunekkoPromise = kitsunekkoAPI.SearchForKitsunekkoEntry(animeMetadata.name).then((foundAnime) => {
       console.log('\x1b[33mSearching for subtitle files in kitsunekko...\x1b[39m')
-      let foundAnime = kitsunekkoTitles.find((el) => el.title === animeMetadata.name)
-      if (!foundAnime) throw Error("No kitsunekko anime found with title: " + animeMetadata.name)
       kitsunekkoAPI.GetKitsunekkoSubtitles(foundAnime.url).then((kitsunekkoSubs) => {
         console.log(`\x1b[36mGot ${kitsunekkoSubs.length} kitsunekko files\x1b[39m`)
         subtitles = subtitles.concat(kitsunekkoSubs) //Concat the files to the subtitles array
