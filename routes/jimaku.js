@@ -11,15 +11,7 @@ const JIMAKU_API_BASE = "https://jimaku.cc/api"
 //Only works for Live actions???
 exports.GetJimakuEntryFromTMDB = async function (tmdbID) {
   const options = { headers: GetJimakuAuthToken() }
-  return fetch(`${JIMAKU_API_BASE}/entries/search?tmdb_id=tv:${tmdbID}`, options).then((resp) => {
-    if ((!resp.ok) || resp.status !== 200) throw Error(`HTTP error! Status: ${resp.status}`)
-    if (resp === undefined) throw Error(`Undefined response!`)
-    return resp.json()
-  }).then((data) => {
-    if (data === undefined || !data[0]) throw Error("Invalid response!")
-    //should only be one result
-    return data[0]
-  })
+  return fetch(`${JIMAKU_API_BASE}/entries/search?tmdb_id=tv:${tmdbID}`, options).then(HandleJimakuEntryResponse)
 }
 /**
  * @param {String} aniListID - AniList ID of the anime, like "12345"
@@ -27,15 +19,7 @@ exports.GetJimakuEntryFromTMDB = async function (tmdbID) {
  */
 exports.GetJimakuEntryFromAniList = async function (aniListID) {
   const options = { headers: GetJimakuAuthToken() }
-  return fetch(`${JIMAKU_API_BASE}/entries/search?anilist_id=${aniListID}`, options).then((resp) => {
-    if ((!resp.ok) || resp.status !== 200) throw Error(`HTTP error! Status: ${resp.status}`)
-    if (resp === undefined) throw Error(`Undefined response!`)
-    return resp.json()
-  }).then((data) => {
-    if (data === undefined || !data[0]) throw Error("Invalid response!")
-    //should only be one result
-    return data[0]
-  })
+  return fetch(`${JIMAKU_API_BASE}/entries/search?anilist_id=${aniListID}`, options).then(HandleJimakuEntryResponse)
 }
 /** 
  * Searches for a Jimaku entry by title.
@@ -44,11 +28,13 @@ exports.GetJimakuEntryFromAniList = async function (aniListID) {
  */
 exports.SearchForJimakuEntry = async function (query) {
   const options = { headers: GetJimakuAuthToken() }
-  return fetch(`${JIMAKU_API_BASE}/entries/search?query=${query}`, options).then((resp) => {
-    if ((!resp.ok) || resp.status !== 200) throw Error(`HTTP error! Status: ${resp.status}`)
-    if (resp === undefined) throw Error(`Undefined response!`)
-    return resp.json()
-  }).then((data) => {
+  return fetch(`${JIMAKU_API_BASE}/entries/search?query=${query}`, options).then(HandleJimakuEntryResponse)
+}
+
+function HandleJimakuEntryResponse(res) {
+  if ((!res.ok) || res.status !== 200) throw Error(`HTTP error! Status: ${res.status}`)
+  if (res === undefined) throw Error(`Undefined response!`)
+  return res.json().then((data) => {
     //console.log("Jimaku search result:", data[0])
     if (data === undefined || !data[0]) throw Error("Invalid response!")
     //send first result
@@ -56,8 +42,9 @@ exports.SearchForJimakuEntry = async function (query) {
   })
 }
 /**
- * 
+ * Gets the Stremio Subtitle objects for a given Jimaku ID and episode number
  * @param {Number} jimakuID 
+ * @param {Number} [episodeNumber] - optional episode number, to refine the query to the API
  * @returns 
  */
 exports.GetJimakuFiles = async function (jimakuID, episodeNumber = undefined) {

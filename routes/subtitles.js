@@ -43,6 +43,7 @@ function HandleSubRequest(req, res, next) {
 
   let subtitles = []
   //get title from TMDB or Cinemeta metadata
+  console.log('\x1b[33mGetting TMDB metadata for IMDB ID:\x1b[39m', videoID)
   const titlePromise = Metadata.GetTMDBMeta(videoID).then((TMDBmeta) => {
     console.log('\x1b[36mGot TMDB metadata:\x1b[39m', TMDBmeta.shortPrint())
     return TMDBmeta.title //We can use this to search for Jimaku subtitles
@@ -52,58 +53,64 @@ function HandleSubRequest(req, res, next) {
       console.log('\x1b[36mGot Cinemeta metadata:\x1b[39m', Cinemeta.shortPrint())
       return Cinemeta.title //We can use this to search for Jimaku subtitles
     })
-  }).catch((err) => {
+  }).catch((err) => { //only catches error from TMDB or Cinemeta API calls, which we want
     console.error('\x1b[31mFailed on metadata:\x1b[39m ' + err)
     res.json({ subtitles, message: "Failed getting media info" });
     next()
   })
-  titlePromise.then((title) => {
+  //Get the romaji title from the metadata, and additionally search for Jimaku or AniList id
+  const animeMetadataPromise = titlePromise.then((title) => {
     if (!title) { throw Error("No title found in metadata!") } //If we don't have a title, we can't search for subtitles
-    if (season !== undefined && season !== "1") { title += ` ${season}` } //If we have a season, append it to the title
-    console.log('\x1b[33mSearching for Jimaku subtitles for\x1b[39m', title)
-    jimakuIDPromise = jimakuAPI.SearchForJimakuEntry(title).then((jimakuEntry) => {
-      return jimakuEntry.id
-    }).catch((reason) => {
-      console.error("\x1b[31mDidn't get Jimaku entry because:\x1b[39m " + reason + ", trying AniList...")
-      return aniListAPI.GetAniListID(title).then((aniListID) => {
-        console.log('\x1b[36mGot AniList ID:\x1b[39m', aniListID)
-        return jimakuAPI.GetJimakuEntryFromAniList(aniListID)
-          .then((jimakuEntry) => {
-            return jimakuEntry.id
-          })
+    //If we have a season, append it to the title, because Jimaku, Anilist and kitsunekko treat them as different entries and use the season number in the title
+    if (season !== undefined && season !== "1") { title += ` ${season}` }
+    console.log('\x1b[33mSearching for metadata in Jimaku for\x1b[39m', title)
+    return jimakuAPI.SearchForJimakuEntry(title).catch((reason) => {
+      console.error("\x1b[31mDidn't get Jimaku entry because:\x1b[39m " + reason + ", \x1b[33msearching AniList...\x1b[39m")
+      return aniListAPI.GetAniListEntry(title).catch((reason) => {
+        console.error("\x1b[31mDidn't get AniList entry because:\x1b[39m " + reason) //TODO: try "https://relations.yuna.moe/api/v2/imdb?id={IMDB ID}&include=anilist" to get AniList ID from IMDB ID
       })
     }).catch((err) => {
-      console.error('\x1b[31mFailed on jimakuID:\x1b[39m ' + err)
+      console.error('\x1b[31mFailed on romaji & ID gathering:\x1b[39m ' + err)
+      res.json({ subtitles, message: "Failed getting anime info" });
+      next()
     });
+  })
 
-    const jimakuPromise = jimakuIDPromise.then((jimakuID) => {
-      if (!jimakuID) { throw Error("No jimakuID!") } //If we don't have a title, we can't search for subtitles
-      console.log('\x1b[36mGot Jimaku ID:\x1b[39m', jimakuID)
-      return jimakuAPI.GetJimakuFiles(jimakuID, episode).then((jimakuFiles) => {
+  animeMetadataPromise.then((animeMetadata) => {
+    if (!animeMetadata) { throw Error("No anime metadata found!") } //If we don't have metadata, we can't search for subtitles
+    console.log('\x1b[36mGot anime with AniList ID:\x1b[39m', animeMetadata.anilist_id)
+    //if we got the Jimaku ID already, the object will have an id property, and we can use it as is, otherwise try to get the Jimaku ID through the AniList ID
+    const jimakuEntryPromise = (animeMetadata.id) ?
+      Promise.resolve(animeMetadata) :
+      jimakuAPI.GetJimakuEntryFromAniList(animeMetadata.anilist_id).catch((err) => {
+        console.error('\x1b[31mFailed getting Jimaku entry form AniList ID:\x1b[39m ' + err)
+      });
+    const jimakuPromise = jimakuEntryPromise.then((jimakuEntry) => {
+      console.log('\x1b[36mGot Jimaku entry:\x1b[39m', jimakuEntry.id)
+      console.log('\x1b[33mSearching for subtitle files in Jimaku...\x1b[39m')
+      return jimakuAPI.GetJimakuFiles(jimakuEntry.id, episode).then((jimakuFiles) => {
         console.log(`\x1b[36mGot ${jimakuFiles.length} Jimaku files\x1b[39m`)
         subtitles = subtitles.concat(jimakuFiles) //Concat the files to the subtitles array
       }).catch((err) => {
         console.error('\x1b[31mFailed getting Jimaku files:\x1b[39m ' + err)
       })
-    }).catch((err) => {
-      if (err.message === "No jimakuID!")
-        console.error('\x1b[31mFailed getting Jimaku files:\x1b[39m ' + err)
     })
 
     const kitsunekkoPromise = kitsunekkoAPI.GetKitsunekkoTitles().then((kitsunekkoTitles) => {
       //TODO: fuzzy sort
-      let foundAnime = kitsunekkoTitles.find((el) => el.title === title)
-      if (!foundAnime) throw Error("No kitsunekko anime found with title: " + title)
+      console.log('\x1b[33mSearching for subtitle files in kitsunekko...\x1b[39m')
+      let foundAnime = kitsunekkoTitles.find((el) => el.title === animeMetadata.name)
+      if (!foundAnime) throw Error("No kitsunekko anime found with title: " + animeMetadata.name)
       kitsunekkoAPI.GetKitsunekkoSubtitles(foundAnime.url).then((kitsunekkoSubs) => {
         console.log(`\x1b[36mGot ${kitsunekkoSubs.length} kitsunekko files\x1b[39m`)
         subtitles = subtitles.concat(kitsunekkoSubs) //Concat the files to the subtitles array
       })
     }).catch((err) => {
-      console.error('\x1b[31mFailed getting Kitsunekko subtitles:\x1b[39m ' + err)
+      console.error('\x1b[31mFailed getting kitsunekko subtitles:\x1b[39m ' + err)
     })
 
     Promise.allSettled([jimakuPromise, kitsunekkoPromise]).then(() => {
-      console.log(`\x1b[36mGot ${subtitles.length} subtitles:\x1b[39m`)
+      console.log(`\x1b[36mGot ${subtitles.length} subtitles\x1b[39m`)
       res.json({ subtitles, cacheMaxAge: 10800, staleRevalidate: 3600, staleError: 259200, message: "Got Japanese subtitles!" });
       next()
     })

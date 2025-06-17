@@ -11,11 +11,11 @@ const SearchQuery = `
     }
   }
   `;
-  /**
-   * @param {String} titleStr - The title to search for in AniList
-   * @returns {Promise<Number>} - The AniList ID of the first result for the given title
-   */
-exports.GetAniListID = async function (titleStr) {
+/**
+ * @param {String} titleStr - The title to search for in AniList
+ * @returns {Promise<Number>} - The AniList entry of the first result for the given title
+ */
+exports.GetAniListEntry = async function (titleStr) {
   let variables = { search: titleStr };
   const options = {
     method: 'POST',
@@ -34,7 +34,7 @@ exports.GetAniListID = async function (titleStr) {
     return resp.json()
   }).then((data) => {
     if (data === undefined) throw Error("Invalid response!")
-    //return id of first result
-    return data.data.Media.id
+    //return first result
+    return { anilist_id: data.data.Media.id, name: data.data.Media.title.romaji }
   })
 }

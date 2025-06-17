@@ -49,7 +49,6 @@ class Metadata {
  * @returns {Promise<Object>} array of metadata objects or movie items
  */
   static GetTMDBMeta(imdbID, lang = undefined) {
-    console.log(`\x1b[96mGetting TMDB metadata for IMDB ID:\x1b[39m ${imdbID}`)
     const reqURL = (lang === undefined) ?
       `${TMDB_API_BASE}/find/${imdbID}?external_source=imdb_id` :
       `${TMDB_API_BASE}/find/${imdbID}?external_source=imdb_id&language=${lang}`;
