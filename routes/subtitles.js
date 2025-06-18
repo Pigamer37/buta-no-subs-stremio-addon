@@ -98,7 +98,7 @@ function HandleSubRequest(req, res, next) {
 
     const kitsunekkoPromise = kitsunekkoAPI.SearchForKitsunekkoEntry(animeMetadata.name).then((foundAnime) => {
       console.log('\x1b[33mSearching for subtitle files in kitsunekko...\x1b[39m')
-      kitsunekkoAPI.GetKitsunekkoSubtitles(foundAnime.url).then((kitsunekkoSubs) => {
+      return kitsunekkoAPI.GetKitsunekkoSubtitles(foundAnime.url, episode, season).then((kitsunekkoSubs) => {
         console.log(`\x1b[36mGot ${kitsunekkoSubs.length} kitsunekko files\x1b[39m`)
         subtitles = subtitles.concat(kitsunekkoSubs) //Concat the files to the subtitles array
       })

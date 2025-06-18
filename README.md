@@ -48,13 +48,9 @@ Whenever you start watching something on Stremio that matches some parameters se
 > This application/addon uses kitsunekko by scrapping it for subtitle sources, but is not endorsed, certified, or otherwise approved by kitsunekko.
 
 ## TO DO:
-- [X] Support kitsunekko as a backup (doesn't have an API, so it makes use of some of the functionallity from [japsub-api](https://github.com/HasanAbbadi/japsub-api))
-- [X] Use the Jimaku's or AniList's metadata's romaji name properties instead of the english title, so kitsunekko searches work (jimaku should work the same with romaji titles) (see [issue #1](/../../issues/1))
 - [ ] Publish to Stremio Addon Catalog (waiting for a response from the stremio team, because the beamup tool is not working for me)
 
 ### Enhancements/new features
-- [X] "Cache" Kitsunekko Title list in a "global" variable (in `app.locals`, accessible in express middleware with `req.app.locals`) on launch and update periodically (probably with `setTimeout()`)
-- [ ] fuzzysort (probably with the npm package of the same name, it's a small dependency: <5MB) kitsunekko title list instead of looking for an exact match
 - [ ] Support kitsu and thus the kitsu Stremio addon (see [issue #2](/../../issues/2))
 - [ ] Touch up the views (the homepage, mainly)
 - [ ] Investigate Stremio API
