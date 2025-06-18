@@ -1,5 +1,5 @@
 {
-  "name": "jp-subs-stremio-addon",
+  "name": "buta-no-subs-stremio-addon",
   "version": "0.0.2",
   "description": "Node.js addon trying to add japanese subtitles to Stremio. (I'm new to backend so I'm using it as a learning experience)",
   "main": "index.js",

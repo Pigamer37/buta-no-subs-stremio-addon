@@ -44,7 +44,11 @@ function ReadManifest() {
         "other"
       ],
       "idPrefixes": [
-        "tt"
+        "tt",
+        "anilist",
+        "kitsu",
+        "mal",
+        "anidb"
       ]/*,
       "behaviorHints": { "configurable": true }*/
     }
