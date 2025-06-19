@@ -31,7 +31,7 @@ function ReadManifest() {
       "id": 'com.' + packageJSON.name.replaceAll('-', '.'),
       "version": packageJSON.version,
       "name": humName,
-      "logo": "https://www.stremio.com/website/stremio-logo-small.png",
+      "logo": "https://i.imgur.com/VZK8qw2.png",
       "description": packageJSON.description,
       "catalogs": [],
       "resources": [
