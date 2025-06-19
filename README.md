@@ -1,15 +1,41 @@
 # [Buta no subs Stremio addon](https://eb33844c60da-jp-subs-stremio-addon.baby-beamup.club/manifest.json)
- Node.js & Express based addon trying to provide Japanese subtitles to Stremio. (I'm new to backend so I'm using it as a learning experience).
+<p align="center"><img src="https://i.imgur.com/VZK8qw2.jpeg" alt="Buta no subs logo" height="256"/></p>
 
-## Normal program flow:
-Whenever you start watching something on Stremio that matches some parameters set in the manifest (generated on `index.js`), the platform will call this addon. When the program can get the data for the item you are watching, it will appear in the subtitles menu under the japanese language, and each of the subtitle files will be labeled with a number so you can select which one to use. When it can't get the data, the entry wont be available.
+Node.js & Express based addon trying to provide Japanese subtitles to Stremio. (I'm new to backend so I'm using it as a learning experience).
+
+## Normal use:
+Whenever you start watching something on Stremio that matches some parameters set in the manifest (generated on [`index.js`](index.js)), the platform will call this addon. When the program can get the data for the item you are about to watch, each of the subtitle options (which are the different files) will appear in the subtitles menu under the japanese language in the ADDONS subsection, and will be labeled with a number so you can select which one to use.
+
+## Tips are welcome:
+If you like the addon and would like to thank me monetarily, you can do so through ko-fi. Thank you!\
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M219PJVI)
+
+## Use as a subtitle API:
+> [!WARNING]  
+> First of all, I need to say that this is not the intended use of this app. As you can read throughout this document, the intended use is to provide japanese subtitles according to the [Stremio spec](https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/requests/defineSubtitlesHandler.md). However, astute individuals may have gathered that with the right request, it can be used as a japanese subtitle API. If you are thinking about doing this:
+> - Please consult me first: You can do this via this repo's Issue tab, or using the social links in my GitHub profile. Because this app uses **MY** API keys, I could get in trouble or rate limited by these API's, or even with Stremio because of excessive requests.
+> - Fork/clone the repo and make your own instance: All the API's I've used are free, [nothing's stopping you from hosting your own instance](LICENSE)! Also, this way you won't share the request load this addon gets. In this case I'd ask you to change the logo and name and maybe credit me ([maybe even a tip?](#tips-are-welcome)), although *I think* legally you are not obligated to do any of those, but that wouldn't be very *cool* of you :rage:
+Here's the path to call it (parameters are marked by being enclosed in {} and described below):
+```
+/subtitles/{type}/{ID}.json
+```
+Parameters
+1. `type`: should not matter, but to make sure, use 'movie' or 'series' depending on what the item is
+2. `ID`: Except for IMDB, different seasons have different ID's. Here we have some options:
+   - `IMDB ID`: starts with "tt", followed by a number, always. If you are looking for a series, you can specify the season and episode numbers. Example: `tt5370118:1:2` *should* give results for Konosuba Season 1 Episode 2
+   - `kitsu ID`: starts with "kitsu:", followed by a number, always. You can specify an episode number if you want. Example: `kitsu:10941:2` *should* give results for Konosuba (Season 1 was specified with the kitsu ID) Episode 2
+   - `AniList ID`: starts with "anilist:", followed by a number, always. You can specify an episode number if you want. Example: `anilist:21202:2` *should* give results for Konosuba (Season 1 was specified with the AniList ID) Episode 2
+   - `MyAnimeList ID`: starts with "mal:", followed by a number, always. You can specify an episode number if you want. Example: `mal:30831:2` *should* give results for Konosuba (Season 1 was specified with the AniList ID) Episode 2
+   - `aniDB ID`: starts with "anidb:", followed by a number, always. You can specify an episode number if you want. Example: `anidb:11261:2` *should* give results for Konosuba (Season 1 was specified with the AniList ID) Episode 2
 
 ## Run locally:
 > [!IMPORTANT]
 > 0. Previous steps/requirements:
->  - This project runs on Node.js, so install both Node.js and the npm package manager
->  - You'll need to get all necessary API keys. Right now you only need to get keys for the TMDB API, Jimaku API, which are free. This addon uses the AniList API as a backup, but that one doesn't need a key for publicly accessible data
->  - Enter those parameters inside a .env file like this (you don't need to install the dotenv npm package manually, the next steps will take care of project dependencies):
+>  - This project runs on Node.js, so install both Node.js and the npm (Node Package Manager)
+>  - You'll need to get all necessary API keys. Right now you only need to get keys for the TMDB API and the Jimaku API [^API], which are free. This addon uses the AniList API and <https://relations.yuna.moe/api/v2> too, but those don't need a key/authentication for publicly accessible data
+> [^API]: Because of how it works, you can *probably* (I have not tested this) get away with not setting these keys, and you'll just won't get subtitles from Jimaku, or be able to process IMDB ID (starting with "tt") based items.
+>  - Enter your parameters inside a .env file like this: [^dotenv]
+> [^dotenv]: You just need to make a file inside the top level repository folder, enter the required information and rename it ".env". You don't need to install the **dotenv** npm package manually, the next steps will take care of project dependencies.
 >    ```
 >    TMDB_API_READ_TOKEN = yourTMDBAPIReadToken
 >    TMDB_API_KEY = yourTMDBAPIkey
@@ -26,45 +52,47 @@ Whenever you start watching something on Stremio that matches some parameters se
 > ```
 > npm run devStart
 > ```
-5. Make requests to the app on localhost:3000 or by using Stremio
+5. Make requests to the app on localhost:3000 (or the port set in an environment variable if it exists) or by using Stremio, in which case you'll need to install the addon (just provide Stremio the manifest url: "https://localhost:3000/manifest.json", for example)
 
 ## Acknowledgements:
 > [!NOTE]
 > ![The Movie DataBase logo](https://www.themoviedb.org/assets/2/v4/logos/v2/blue_long_2-9665a76b1ae401a510ec1e0ca40ddcb3b0cfe45f1d51b77a308fea0845885648.svg)
-> This application/addon uses TMDB and the TMDB APIs for IMDB ID's but is not endorsed, certified, or otherwise approved by TMDB.
+> This application/addon uses TMDB and the TMDB API for IMDB ID's but is not endorsed, certified, or otherwise approved by TMDB.
 >
 > In case TMDB doesn't work, the [Cinemeta Stremio Addon](https://v3-cinemeta.strem.io/) will be used to get the item's metadata.
 >
-> <img src="https://jimaku.cc/static/icons/android-chrome-512x512.png" alt="Jimaku logo" height="100"/>
+> <p align="center"><img src="https://jimaku.cc/static/icons/android-chrome-512x512.png" alt="Jimaku logo" height="100"/></p>
 >
 > This application/addon uses Jimaku and the Jimaku API but is not endorsed, certified, or otherwise approved by Jimaku.
 >
-> <img src="https://kitsunekko.net/favicon.ico" alt="kitsunekko logo" height="100"/>
+> <p align="center"><img src="https://kitsunekko.net/favicon.ico" alt="kitsunekko logo" height="100"/></p>
 >
 > This application/addon uses kitsunekko by scrapping it for subtitle sources, but is not endorsed, certified, or otherwise approved by kitsunekko.
 >
-> <img src="https://yt3.ggpht.com/a-/AAuE7mBuEI3rUQY_s7MmzbnBmHMZxuCu11BJzISV8w=s900-mo-c-c0xffffffff-rj-k-no" alt="AniList logo" height="100"/>
+> <p align="center"><img src="https://yt3.ggpht.com/a-/AAuE7mBuEI3rUQY_s7MmzbnBmHMZxuCu11BJzISV8w=s900-mo-c-c0xffffffff-rj-k-no" alt="AniList logo" height="100"/></p>
 >
 > This application/addon uses AniList and the AniList API to get metadata, specially for MyAnimeList, AniDB, AniList and kitsu ID's. It is not endorsed, certified, or otherwise approved by AniList.
 >
-> <img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/MyAnimeList_Logo.png" alt="MyAnimeList logo" height="100"/>
+> <p align="center"><img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/MyAnimeList_Logo.png" alt="MyAnimeList logo" height="100"/></p>
 >
 > This application/addon is able to process MyAnimeList ID's, but is not endorsed, certified, or otherwise approved by MyAnimeList.
 >
-> <img src="https://upload.wikimedia.org/wikipedia/commons/e/ec/AniDB_apple-touch-icon.png" alt="aniDB logo" height="100"/>
+> <p align="center"><img src="https://upload.wikimedia.org/wikipedia/commons/e/ec/AniDB_apple-touch-icon.png" alt="aniDB logo" height="100"/></p>
 >
 > This application/addon is able to process aniDB ID's, but is not endorsed, certified, or otherwise approved by aniDB.
 >
-> <img src="https://kitsu.app/kitsu-256-d4c4633df2c4745352100a4f0a7f5f9e.png" alt="kitsu logo" height="100"/>
+> <p align="center"><img src="https://kitsu.app/kitsu-256-d4c4633df2c4745352100a4f0a7f5f9e.png" alt="kitsu logo" height="100"/></p>
 >
 > This application/addon is able to process kitsu ID's, but is not endorsed, certified, or otherwise approved by kitsu.
 
 
 ## TO DO:
-- [ ] Publish to Stremio Addon Catalog (waiting for a response from the stremio team, because the beamup tool is not working for me)
+- [ ] Publish to Stremio Addon Catalog (waiting for a response from the Stremio team, because the beamup tool is not working for me)
 
 ### Enhancements/new features
-- [X] Support MyAnimeList, AniDB, AniList and kitsu ID's and thus the kitsu Stremio addon (see [issue #2](/../../issues/2)) via [https://relations.yuna.moe/api/v2](https://relations.yuna.moe/api/v2)
+- [X] Support MyAnimeList, AniDB, AniList and kitsu ID's and thus the kitsu Stremio addon (see [issue #2](/../../issues/2)) via <https://relations.yuna.moe/api/v2>
+- [ ] Investigate (and maybe support?) matchoo. See [japsub-api repo](https://github.com/HasanAbbadi/japsub-api/blob/master/scrapers/matchoo.js)
+- [ ] Investigate (and maybe use?) [Mysubs-API](https://github.com/HasanAbbadi/mysubs-api/tree/master)
 - [ ] Touch up the views (the homepage, mainly)
 - [ ] Investigate Stremio API
 
@@ -79,4 +107,4 @@ Whenever you start watching something on Stremio that matches some parameters se
 - [MDN docs](https://developer.mozilla.org/en-US/docs/Web)
 - [JSDoc docs](https://jsdoc.app/)
 
-Made with love for my friend Gonzalo
+Made with love for my friend Gonzalo, who made [the fantastic addon logo](#buta-no-subs-stremio-addon)!
