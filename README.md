@@ -1,9 +1,10 @@
-# [Buta no subs Stremio addon](https://eb33844c60da-jp-subs-stremio-addon.baby-beamup.club/manifest.json)
+# [Buta no subs Stremio addon](stremio://buta-no-subs-stremio-addon.onrender.com/manifest.json)
 <p align="center"><img src="https://i.imgur.com/VZK8qw2.jpeg" alt="Buta no subs logo" height="256"/></p>
 
 Node.js & Express based addon trying to provide Japanese subtitles to Stremio. (I'm new to backend so I'm using it as a learning experience).
 
 ## Normal use:
+### Install by clicking [this link](stremio://buta-no-subs-stremio-addon.onrender.com/manifest.json) or add <https://buta-no-subs-stremio-addon.onrender.com/manifest.json> to your addons
 Whenever you start watching something on Stremio that matches some parameters set in the manifest (generated on [`index.js`](index.js)), the platform will call this addon. When the program can get the data for the item you are about to watch, each of the subtitle options (which are the different files) will appear in the subtitles menu under the japanese language in the ADDONS subsection, and will be labeled with a number so you can select which one to use.
 
 ## Tips are welcome:
@@ -81,7 +82,7 @@ Parameters
 
 
 ## TO DO:
-- [ ] Publish to Stremio Addon Catalog (waiting for a response from the Stremio team, because the beamup tool is not working for me)
+- [X] Publish to Stremio Addon Catalog (not on [Beam Up](https://eb33844c60da-jp-subs-stremio-addon.baby-beamup.club/manifest.json), because the beamup tool is not working for me)
 
 ### Enhancements/new features
 - [X] Support MyAnimeList, AniDB, AniList and kitsu ID's and thus the kitsu Stremio addon (see [issue #2](/../../issues/2)) via <https://relations.yuna.moe/api/v2>

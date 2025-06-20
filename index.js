@@ -76,8 +76,7 @@ app.get("/:config/manifest.json", (_req, res) => {
 
 /*app.get("/configure", (req, res) => {
   ReadManifest().then((manif) => {
-    let base_url = req.hostname;
-    if (req.hostname === "127.0.0.1") base_url += ":3000";
+    let base_url = req.host;
     res.render('config', {
       logged_in: false,
       base_url: base_url,
@@ -90,8 +89,7 @@ app.get("/:config/manifest.json", (_req, res) => {
 //WIP
 app.get("/:config/configure", (req, res) => {
   ReadManifest().then((manif) => {
-    let base_url = req.hostname;
-    if (req.hostname === "127.0.0.1") base_url += ":3000";
+    let base_url = req.host;
     res.render('config', {
       logged_in: true,
       config: req.params.config,
