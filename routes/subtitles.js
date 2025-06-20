@@ -60,6 +60,7 @@ function HandleSubRequest(req, res, next) {
       console.error('\x1b[31mFailed on metadata:\x1b[39m ' + err)
       res.json({ subtitles, message: "Failed getting media info" });
       next()
+      throw err //We throw the error so we can catch it later
     })
     //Get the romaji title from the metadata, and additionally search for Jimaku or AniList id
     animeMetadataPromise = titlePromise.then((title) => {
@@ -71,12 +72,9 @@ function HandleSubRequest(req, res, next) {
         console.error("\x1b[31mDidn't get Jimaku entry because:\x1b[39m " + reason + ", \x1b[33msearching AniList...\x1b[39m")
         return aniListAPI.GetAniListEntry(title).catch((reason) => {
           console.error("\x1b[31mDidn't get AniList entry because:\x1b[39m " + reason) //TODO: try "https://relations.yuna.moe/api/v2/imdb?id={IMDB ID}&include=anilist" to get AniList ID from IMDB ID
+          throw reason
         })
-      }).catch((err) => {
-        console.error('\x1b[31mFailed on romaji & ID gathering:\x1b[39m ' + err)
-        res.json({ subtitles, message: "Failed getting anime info" });
-        next()
-      });
+      })
     })
   } else if (videoID == "anilist") {
     const ID = idDetails[1]
@@ -84,7 +82,7 @@ function HandleSubRequest(req, res, next) {
     console.log(`\x1b[33mGot a ${req.params.type} with AniList ID:\x1b[39m ${ID}`)
     animeMetadataPromise = aniListAPI.GetAniListEntryByID(ID).catch((reason) => {
       console.error("\x1b[31mDidn't get AniList entry from ID because:\x1b[39m " + reason) //TODO: try "https://relations.yuna.moe/api/v2/imdb?id={IMDB ID}&include=anilist" to get AniList ID from IMDB ID
-      return ID //we couldn't get the AniList entry (with the romaji name), but we can still fulfill the request with the ID
+      return { anilist_id: ID } //we couldn't get the AniList entry (with the romaji name), but we can still fulfill the request with the ID
     })
   } else if (videoID.match(/^(?:kitsu|mal|anidb)$/)) { //If we got a kitsu, mal or anidb ID
     const ID = idDetails[1] //We want the second part of the videoID, which is the kitsu ID
@@ -92,8 +90,9 @@ function HandleSubRequest(req, res, next) {
     console.log(`\x1b[33mGot a ${req.params.type} with ${videoID} ID:\x1b[39m ${ID}`)
     animeMetadataPromise = aniListAPI.GetAniListIDFromANIMEID(videoID, ID).catch((reason) => {
       console.error("\x1b[31mDidn't get AniList entry from", videoID, "ID because:\x1b[39m " + reason)
+      throw reason //We throw the error so we can catch it later
     })
-  } else { res.json({ subtitles, message: "Wrong ID format, check manifest for errors" }); next() }
+  } else { if (!res.headersSent) { res.json({ subtitles, message: "Wrong ID format, check manifest for errors" }); next() } }
 
   animeMetadataPromise.then((animeMetadata) => {
     if (!animeMetadata) { throw Error("No anime metadata found!") } //If we don't have metadata, we can't search for subtitles
@@ -136,6 +135,12 @@ function HandleSubRequest(req, res, next) {
       res.json({ subtitles, cacheMaxAge: 10800, staleRevalidate: 3600, staleError: 259200, message: "Got Japanese subtitles!" });
       next()
     })
+  }).catch((err) => {
+    console.error('\x1b[31mFailed on anime metadata gathering:\x1b[39m ' + err)
+    if (!res.headersSent) {
+      res.json({ subtitles, message: "Failed getting item info" });
+      next()
+    }
   })
 }
 /** 
