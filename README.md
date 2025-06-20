@@ -62,27 +62,21 @@ Parameters
 > In case TMDB doesn't work, the [Cinemeta Stremio Addon](https://v3-cinemeta.strem.io/) will be used to get the item's metadata.
 >
 > <p align="center"><img src="https://jimaku.cc/static/icons/android-chrome-512x512.png" alt="Jimaku logo" height="100"/></p>
->
 > This application/addon uses Jimaku and the Jimaku API but is not endorsed, certified, or otherwise approved by Jimaku.
 >
 > <p align="center"><img src="https://kitsunekko.net/favicon.ico" alt="kitsunekko logo" height="100"/></p>
->
 > This application/addon uses kitsunekko by scrapping it for subtitle sources, but is not endorsed, certified, or otherwise approved by kitsunekko.
 >
 > <p align="center"><img src="https://yt3.ggpht.com/a-/AAuE7mBuEI3rUQY_s7MmzbnBmHMZxuCu11BJzISV8w=s900-mo-c-c0xffffffff-rj-k-no" alt="AniList logo" height="100"/></p>
->
 > This application/addon uses AniList and the AniList API to get metadata, specially for MyAnimeList, AniDB, AniList and kitsu ID's. It is not endorsed, certified, or otherwise approved by AniList.
 >
 > <p align="center"><img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/MyAnimeList_Logo.png" alt="MyAnimeList logo" height="100"/></p>
->
 > This application/addon is able to process MyAnimeList ID's, but is not endorsed, certified, or otherwise approved by MyAnimeList.
 >
 > <p align="center"><img src="https://upload.wikimedia.org/wikipedia/commons/e/ec/AniDB_apple-touch-icon.png" alt="aniDB logo" height="100"/></p>
->
 > This application/addon is able to process aniDB ID's, but is not endorsed, certified, or otherwise approved by aniDB.
 >
 > <p align="center"><img src="https://kitsu.app/kitsu-256-d4c4633df2c4745352100a4f0a7f5f9e.png" alt="kitsu logo" height="100"/></p>
->
 > This application/addon is able to process kitsu ID's, but is not endorsed, certified, or otherwise approved by kitsu.
 
 
