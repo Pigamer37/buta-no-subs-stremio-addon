@@ -86,6 +86,7 @@ Parameters
 
 ### Enhancements/new features
 - [X] Support MyAnimeList, AniDB, AniList and kitsu ID's and thus the kitsu Stremio addon (see [issue #2](/../../issues/2)) via <https://relations.yuna.moe/api/v2>
+- [ ] Use <https://relations.yuna.moe/api/v2> to get AniList ID directly instead of passing through a title text search, because sometimes Jimaku/AniList return false positives
 - [ ] Investigate (and maybe support?) matchoo. See [japsub-api repo](https://github.com/HasanAbbadi/japsub-api/blob/master/scrapers/matchoo.js)
 - [ ] Investigate (and maybe use?) [Mysubs-API](https://github.com/HasanAbbadi/mysubs-api/tree/master)
 - [ ] Touch up the views (the homepage, mainly)

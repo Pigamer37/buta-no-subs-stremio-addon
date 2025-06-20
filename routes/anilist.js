@@ -88,3 +88,23 @@ exports.GetAniListIDFromANIMEID = async function (IDType, ID) {
     return { anilist_id: data.anilist }
   })
 }
+
+exports.GetAniListIDFromIMDBID = async function (ID, season = undefined) {
+  //get anilist ID from IMDB ID
+  const reqURL = `${ID_RELATIONS_API_BASE}//imdb?id=${ID}&include=anilist,anime-planet`
+  return fetch(reqURL).then((resp) => {
+    if ((!resp.ok) || resp.status !== 200) throw Error(`HTTP error! Status: ${resp.status}`)
+    if (resp === undefined) throw Error(`Undefined response!`)
+    return resp.json()
+  }).then((data) => {
+    if (data === undefined) throw Error("Invalid response!")
+    if ((season !== undefined) && (data.length > 1)) { //if we have a season number and multiple results search for the right season
+      for (const result of data) { //take advantage of animeplanet's slug info
+        if (result["anime-planet"] && result["anime-planet"].endsWith(season.toString())) { //"anime-planet": "konosuba-gods-blessing-on-this-wonderful-world-2"
+          return { anilist_id: result.anilist }
+        }
+      }//we didn't get a match, throw error to search by name
+      throw Error(`No matching season found for IMDB ID ${ID} and season ${season}`)
+    } else return { anilist_id: data[0].anilist } //return first result
+  })
+}
