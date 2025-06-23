@@ -24,6 +24,7 @@ Parameters
 1. `type`: should not matter, but to make sure, use 'movie' or 'series' depending on what the item is
 2. `ID`: Except for IMDB, different seasons have different ID's. Here we have some options:
    - `IMDB ID`: starts with "tt", followed by a number, always. If you are looking for a series, you can specify the season and episode numbers. Example: `tt5370118:1:2` *should* give results for Konosuba Season 1 Episode 2
+   - `TMDB ID`: starts with "tmdb:", followed by a number, always. You can specify a season and episode number if you want. Example: `tmdb:65844:1:2` *should* give results for Konosuba Season 1 Episode 2
    - `kitsu ID`: starts with "kitsu:", followed by a number, always. You can specify an episode number if you want. Example: `kitsu:10941:2` *should* give results for Konosuba (Season 1 was specified with the kitsu ID) Episode 2
    - `AniList ID`: starts with "anilist:", followed by a number, always. You can specify an episode number if you want. Example: `anilist:21202:2` *should* give results for Konosuba (Season 1 was specified with the AniList ID) Episode 2
    - `MyAnimeList ID`: starts with "mal:", followed by a number, always. You can specify an episode number if you want. Example: `mal:30831:2` *should* give results for Konosuba (Season 1 was specified with the AniList ID) Episode 2
@@ -58,7 +59,7 @@ Parameters
 ## Acknowledgements:
 > [!NOTE]
 > ![The Movie DataBase logo](https://www.themoviedb.org/assets/2/v4/logos/v2/blue_long_2-9665a76b1ae401a510ec1e0ca40ddcb3b0cfe45f1d51b77a308fea0845885648.svg)
-> This application/addon uses TMDB and the TMDB API for IMDB ID's but is not endorsed, certified, or otherwise approved by TMDB.
+> This application/addon uses TMDB and the TMDB API but is not endorsed, certified, or otherwise approved by TMDB.
 >
 > In case TMDB doesn't work, the [Cinemeta Stremio Addon](https://v3-cinemeta.strem.io/) will be used to get the item's metadata.
 >
@@ -68,8 +69,11 @@ Parameters
 > <p align="center"><img src="https://kitsunekko.net/favicon.ico" alt="kitsunekko logo" height="100"/></p>
 > This application/addon uses kitsunekko by scrapping it for subtitle sources, but is not endorsed, certified, or otherwise approved by kitsunekko.
 >
+> ![MySubs logo](https://www.mysubs.org/logo.png)
+> This application/addon uses MySubs as a source but is not endorsed, certified, or otherwise approved by TMDB.
+>
 > <p align="center"><img src="https://yt3.ggpht.com/a-/AAuE7mBuEI3rUQY_s7MmzbnBmHMZxuCu11BJzISV8w=s900-mo-c-c0xffffffff-rj-k-no" alt="AniList logo" height="100"/></p>
-> This application/addon uses AniList and the AniList API to get metadata, specially for MyAnimeList, AniDB, AniList and kitsu ID's. It is not endorsed, certified, or otherwise approved by AniList.
+> This application/addon uses AniList and the AniList API to get metadata. It is not endorsed, certified, or otherwise approved by AniList.
 >
 > <p align="center"><img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/MyAnimeList_Logo.png" alt="MyAnimeList logo" height="100"/></p>
 > This application/addon is able to process MyAnimeList ID's, but is not endorsed, certified, or otherwise approved by MyAnimeList.
@@ -86,9 +90,9 @@ Parameters
 
 ### Enhancements/new features
 - [X] Support MyAnimeList, AniDB, AniList and kitsu ID's and thus the kitsu Stremio addon (see [issue #2](/../../issues/2)) via <https://relations.yuna.moe/api/v2>
-- [ ] Use <https://relations.yuna.moe/api/v2> to get AniList ID directly instead of passing through a title text search, because sometimes Jimaku/AniList return false positives
+- [X] Use <https://relations.yuna.moe/api/v2> to get AniList ID directly instead of passing through a title text search, because sometimes Jimaku/AniList return false positives when searching by title
+- [X] Use [Mysubs-API](https://github.com/HasanAbbadi/mysubs-api/tree/master) as a source for extended results
 - [ ] Investigate (and maybe support?) matchoo. See [japsub-api repo](https://github.com/HasanAbbadi/japsub-api/blob/master/scrapers/matchoo.js)
-- [ ] Investigate (and maybe use?) [Mysubs-API](https://github.com/HasanAbbadi/mysubs-api/tree/master)
 - [ ] Touch up the views (the homepage, mainly)
 - [ ] Investigate Stremio API
 

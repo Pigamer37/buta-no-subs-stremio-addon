@@ -47,7 +47,7 @@ exports.GetAniListEntry = async function (titleStr) {
   }).then((data) => {
     if (data === undefined) throw Error("Invalid response!")
     //return first result
-    return { anilist_id: data.data.Media.id, name: data.data.Media.title.romaji }
+    return { anilist_id: data.data.Media.id, name: data.data.Media.title.romaji, engTitle: data.data.Media.title.english }
   })
 }
 
@@ -71,7 +71,7 @@ exports.GetAniListEntryByID = async function (aniListID) {
   }).then((data) => {
     if (data === undefined) throw Error("Invalid response!")
     //return first result
-    return { anilist_id: data.data.Media.id, name: data.data.Media.title.romaji }
+    return { anilist_id: data.data.Media.id, name: data.data.Media.title.romaji, engTitle: data.data.Media.title.english }
   })
 }
 
@@ -108,10 +108,12 @@ exports.GetAniListIDFromMOVIEDBID = async function (IDType, ID, season = undefin
     if ((season !== undefined) && (data.length > 1)) { //if we have a season number and multiple results search for the right season
       for (const result of data) { //take advantage of animeplanet's slug info
         if (result["anime-planet"] && result["anime-planet"].endsWith(season.toString())) { //"anime-planet": "konosuba-gods-blessing-on-this-wonderful-world-2"
-          return { anilist_id: result.anilist }
+          return { anilist_id: result.anilist, [`${IDType}ID`]: ID }
         }
       }//we didn't get a match, throw error to search by name
       throw Error(`No matching season found for IMDB ID ${ID} and season ${season}`)
-    } else return { anilist_id: data[0].anilist } //return first result
+    } else {
+      return { anilist_id: data[0].anilist, [`${IDType}ID`]: ID } //return first result
+    }
   })
 }

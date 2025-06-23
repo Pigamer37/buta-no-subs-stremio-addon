@@ -71,6 +71,7 @@ class Metadata {
  * Requests metadata from TMDB
  * @param {String} imdbID - IMDB item ID like "tt29623480"
  * @param {String} [lang=undefined] - optional language code for query
+ * @param {String} mediaType - type of media, either "movie" or "series"
  * @returns {Promise<Object>} array of metadata objects or movie items
  */
   static GetTMDBMetaFromTMDBID(tmdbID, mediaType, lang = undefined) {
@@ -87,7 +88,30 @@ class Metadata {
       }).then((data) => {
         if ((data === undefined)) reject(new Error("Invalid response!"))
         if (mediaType === "movie") resolve(new Metadata(data.imdb_id, data.id, mediaType, data.title, data.overview, data.release_date, data.adult))
-        else resolve(new Metadata(undefined, data.id, mediaType, data.name, data.overview, data.first_air_date, data.adult))
+        else {
+          const imdbIDPromise = (!data.imdb_id) ? this.GetIMDBIDFromTMDBID(tmdbID, mediaType) : Promise.resolve(data.imdb_id)
+          imdbIDPromise.then((imdbID) => {
+            resolve(new Metadata(imdbID, data.id, mediaType, data.name, data.overview, data.first_air_date, data.adult))
+          })
+        }
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+  static GetIMDBIDFromTMDBID(tmdbID, mediaType) {
+    if (mediaType === "series") mediaType = "tv"
+    const reqURL = `${TMDB_API_BASE}/${mediaType}/${tmdbID}/external_ids`
+    const options = { headers: GetTMDBAuthToken() }
+    return new Promise((resolve, reject) => {
+      fetch(reqURL, options).then((resp) => {
+        if ((!resp.ok) || resp.status !== 200) reject(new Error(`HTTP error! Status: ${resp.status}`))
+        if (resp === undefined) reject(new Error("Undefined response!"))
+        return resp.json()
+      }).then((data) => {
+        if ((data === undefined)) reject(new Error("Invalid response!"))
+        if (data.imdb_id === undefined) reject(new Error("No IMDB ID found!"))
+        resolve(data.imdb_id)
       }).catch(e => {
         reject(e)
       })
