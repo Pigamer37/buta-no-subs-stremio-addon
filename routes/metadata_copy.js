@@ -28,11 +28,11 @@ class Metadata {
     else if (typeof releaseDate === 'string') { this.releaseDate = new Date(releaseDate) }
   }
   shortPrint() {
-    return `${this.title}, a ${(this.type==="tv")?"series":this.type} released ${this.releaseDate.toDateString()}`;
+    return `${this.title}, a ${(this.type === "tv") ? "series" : this.type} released ${this.releaseDate.toDateString()}`;
   }
   fullPrint() {
     return `${this.title}, a` + (adult !== undefined) ? "n adult" : "" +
-      ` ${(this.type==="tv")?"series":this.type} released ${this.releaseDate.toDateString()}.\n
+      ` ${(this.type === "tv") ? "series" : this.type} released ${this.releaseDate.toDateString()}.\n
     Overview: ${this.summary}`;
   }
   imdbID;
@@ -60,8 +60,34 @@ class Metadata {
         return resp.json()
       }).then((data) => {
         if ((data === undefined)) reject(new Error("Invalid response!"))
-        if(data.movie_results.length > 0) resolve(Metadata.ParseTMDBMeta(data.movie_results, imdbID))
+        if (data.movie_results.length > 0) resolve(Metadata.ParseTMDBMeta(data.movie_results, imdbID))
         else if (data.tv_results.length > 0) resolve(Metadata.ParseTMDBMeta(data.tv_results, imdbID))
+      }).catch(e => {
+        reject(e)
+      })
+    })
+  }
+  /**
+ * Requests metadata from TMDB
+ * @param {String} imdbID - IMDB item ID like "tt29623480"
+ * @param {String} [lang=undefined] - optional language code for query
+ * @returns {Promise<Object>} array of metadata objects or movie items
+ */
+  static GetTMDBMetaFromTMDBID(tmdbID, mediaType, lang = undefined) {
+    if (mediaType === "series") mediaType = "tv"
+    const reqURL = (lang === undefined) ?
+      `${TMDB_API_BASE}/${mediaType}/${tmdbID}` :
+      `${TMDB_API_BASE}/${mediaType}/${tmdbID}?language=${lang}`;
+    const options = { headers: GetTMDBAuthToken() }
+    return new Promise((resolve, reject) => {
+      fetch(reqURL, options).then((resp) => {
+        if ((!resp.ok) || resp.status !== 200) reject(new Error(`HTTP error! Status: ${resp.status}`))
+        if (resp === undefined) reject(new Error("Undefined response!"))
+        return resp.json()
+      }).then((data) => {
+        if ((data === undefined)) reject(new Error("Invalid response!"))
+        if (mediaType === "movie") resolve(new Metadata(data.imdb_id, data.id, mediaType, data.title, data.overview, data.release_date, data.adult))
+        else resolve(new Metadata(undefined, data.id, mediaType, data.name, data.overview, data.first_air_date, data.adult))
       }).catch(e => {
         reject(e)
       })
@@ -76,7 +102,7 @@ class Metadata {
   static ParseTMDBMeta(resultsArray, imdbID) {
     const first_item = resultsArray[0]
     const release_date = first_item.release_date || first_item.first_air_date,
-    title = first_item.title || first_item.name
+      title = first_item.title || first_item.name
     return new Metadata(imdbID, first_item.id, first_item.media_type, title, first_item.overview, release_date, first_item.adult)
   }
   /**

@@ -45,16 +45,13 @@ function ReadManifest() {
       ],
       "idPrefixes": [
         "tt",
+        "tmdb",
         "anilist",
         "kitsu",
         "mal",
         "anidb"
-      ],/*,
+      ]/*,
       "behaviorHints": { "configurable": true }*/
-      "stremioAddonsConfig": {
-        "issuer": "https://stremio-addons.net",
-        "signature": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..JoGj6FZ9BwjlGDcvVv2lTA.EQU6UkfewtLbLh3hcVAfmaTL6zaTj0_iTKwTu_YN9c0WOCSv6r8ASwdu7WrAFUr5aVOYAl43Nsqdjh0KGtaixLSt49oNEh498jdlwv208mq51uSI9bMo3uelGSROJfTM.g6F0_WHq4IQ6S06zrszKPw"
-      }
     }
     return manifest;
   })

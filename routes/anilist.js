@@ -88,16 +88,23 @@ exports.GetAniListIDFromANIMEID = async function (IDType, ID) {
     return { anilist_id: data.anilist }
   })
 }
-
-exports.GetAniListIDFromIMDBID = async function (ID, season = undefined) {
-  //get anilist ID from IMDB ID
-  const reqURL = `${ID_RELATIONS_API_BASE}//imdb?id=${ID}&include=anilist,anime-planet`
+/**
+ * 
+ * @param {String} IDType 
+ * @param {String} ID 
+ * @param {Number} season 
+ * @returns {Promise<Object>} - returns a promise that resolves to the AniList ID of the anime with the given IDType and ID
+ */
+exports.GetAniListIDFromMOVIEDBID = async function (IDType, ID, season = undefined) {
+  //get anilist ID from IMDB/TMDB ID
+  const reqURL = `${ID_RELATIONS_API_BASE}/${IDType}?id=${ID}&include=anilist,anime-planet`
   return fetch(reqURL).then((resp) => {
+    if (resp.status === 404) throw Error("Empty response!") //if we get a 404, it means no results were found
     if ((!resp.ok) || resp.status !== 200) throw Error(`HTTP error! Status: ${resp.status}`)
     if (resp === undefined) throw Error(`Undefined response!`)
     return resp.json()
   }).then((data) => {
-    if (data === undefined) throw Error("Invalid response!")
+    if (data.length < 1) throw Error("Empty response!")
     if ((season !== undefined) && (data.length > 1)) { //if we have a season number and multiple results search for the right season
       for (const result of data) { //take advantage of animeplanet's slug info
         if (result["anime-planet"] && result["anime-planet"].endsWith(season.toString())) { //"anime-planet": "konosuba-gods-blessing-on-this-wonderful-world-2"

@@ -1,7 +1,7 @@
 {
   "name": "buta-no-subs-stremio-addon",
-  "version": "0.1.0",
-  "description": "Node.js addon to add japanese subtitles to Stremio.",
+  "version": "1.0.0",
+  "description": "Node.js addon to add japanese subtitles to Stremio. GitHub repo: https://github.com/Pigamer37/buta-no-subs-stremio-addon",
   "main": "index.js",
   "scripts": {
     "devStart": "nodemon index.js --ignore kitsunekko_titles.json --ignore README"
