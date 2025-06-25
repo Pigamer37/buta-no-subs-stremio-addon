@@ -105,7 +105,7 @@ exports.GetAniListIDFromMOVIEDBID = async function (IDType, ID, season = undefin
     return resp.json()
   }).then((data) => {
     if (data.length < 1) throw Error("Empty response!")
-    if ((season !== undefined) && (data.length > 1)) { //if we have a season number and multiple results search for the right season
+    if ((season !== undefined) && (parseInt(season) !== 1) && (data.length > 1)) { //if we have a season number and it's not 1, and we have multiple results search for the right season
       for (const result of data) { //take advantage of animeplanet's slug info
         if (result["anime-planet"] && result["anime-planet"].endsWith(season.toString())) { //"anime-planet": "konosuba-gods-blessing-on-this-wonderful-world-2"
           return { anilist_id: result.anilist, [`${IDType}ID`]: ID }
