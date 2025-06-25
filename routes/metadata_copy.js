@@ -156,7 +156,7 @@ class Metadata {
    * @returns {Object} Parsed and standardised metadata
    */
   static ParseCinemetaMeta(meta) {
-    return new Metadata(meta.imdb_id, meta.moviedb_id, meta.type, meta.name, meta.description, meta.released)
+    return new Metadata(meta.id, meta.moviedb_id, meta.type, meta.name, meta.description, meta.released || meta.releaseInfo)
   }
 }
 

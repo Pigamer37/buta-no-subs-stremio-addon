@@ -84,7 +84,8 @@ exports.GetKitsunekkoSubtitles = async function (url, episodeNumber = undefined,
       return checkSeason(title, seasonNumber) && checkEpisode(title, episodeNumber)
     })
     for (const subEntry of filteredData) {
-      if (!subEntry.title.endsWith(".srt") /*&& !subEntry.name.endsWith(".ass")*/) continue //Only subtitle files
+      if (!subEntry.title.endsWith(".srt") && !subEntry.title.endsWith(".ass") && !subEntry.title.endsWith(".ssa") 
+        && !subEntry.title.endsWith(".vtt") && !subEntry.title.endsWith(".ttml") && !subEntry.title.endsWith(".sub")) continue //Only subtitle files
       //add 1000 to the id to avoid 'collision' with other subtitle providers
       subtitles.push({ id: `${subtitles.length + 1001}`, url: "https://kitsunekko.net/" + subEntry.url, lang: "jpn" });
     }

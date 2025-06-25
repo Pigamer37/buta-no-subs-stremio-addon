@@ -54,7 +54,6 @@ function HandleSubRequest(req, res, next) {
       episode = idDetails[2] //undefined if we don't get an episode number in the query, which is fine
     }
     console.log(`\x1b[33mGot a ${req.params.type} with ${idType.toUpperCase()} ID:\x1b[39m ${ID}`)
-    console.log('Extra parameters:', res.locals.extraParams)
 
     animeMetadataPromise = aniListAPI.GetAniListIDFromMOVIEDBID(idType, ID, season).catch((reason) => {
       //get title from TMDB or Cinemeta metadata
@@ -124,6 +123,7 @@ function HandleSubRequest(req, res, next) {
     })
   } else { if (!res.headersSent) { res.json({ subtitles, message: "Wrong ID format, check manifest for errors" }); next() } }
 
+  console.log('Extra parameters:', res.locals.extraParams)
   animeMetadataPromise.then((animeMetadata) => {
     if (!animeMetadata) { throw Error("No anime metadata found!") } //If we don't have metadata, we can't search for subtitles
     let jimakuPromise, kitsunekkoPromise, mySubsPromise

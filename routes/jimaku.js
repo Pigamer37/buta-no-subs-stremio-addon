@@ -66,7 +66,8 @@ function ParseJimakuFiles(data) {
   //data is an array of files
   let subtitles = []
   for (const subEntry of data) {
-    if (!subEntry.name.endsWith(".srt") /*&& !subEntry.name.endsWith(".ass")*/) continue //Only subtitle files
+    if (!subEntry.title.endsWith(".srt") && !subEntry.title.endsWith(".ass") && !subEntry.title.endsWith(".ssa") 
+        && !subEntry.title.endsWith(".vtt") && !subEntry.title.endsWith(".ttml") && !subEntry.title.endsWith(".sub")) continue //Only subtitle files
     //We can now respond with the subtitles
     subtitles.push({ id: `${subtitles.length + 1}`, url: subEntry.url, lang: "jpn" });
   }
