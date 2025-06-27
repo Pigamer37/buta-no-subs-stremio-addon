@@ -7,6 +7,10 @@ Node.js & Express based addon trying to provide Japanese subtitles to Stremio. (
 ### Install by clicking [this link](stremio://buta-no-subs-stremio-addon.onrender.com/manifest.json) or add <https://buta-no-subs-stremio-addon.onrender.com/manifest.json> to your addons
 Whenever you start watching something on Stremio that matches some parameters set in the manifest (generated on [`index.js`](index.js)), the platform will call this addon. When the program can get the data for the item you are about to watch, each of the subtitle options (which are the different files) will appear in the subtitles menu under the japanese language in the ADDONS subsection, and will be labeled with a number so you can select which one to use.
 
+> [!TIP]
+> ### Recommendations:
+> Learning japanese? There's also the [Strelingo Addon](https://github.com/Serkali-sudo), which lets you **see two subtitle languages at the same time** (English and Japanese, for example), and uses this addon as a provider for Japanese subs.
+
 ## Tips are welcome:
 If you like the addon and would like to thank me monetarily, you can do so through ko-fi. Thank you!\
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/M4M219PJVI)
@@ -87,6 +91,7 @@ Parameters
 
 ## TO DO:
 - [X] Publish to Stremio Addon Catalog (not on [Beam Up](https://eb33844c60da-jp-subs-stremio-addon.baby-beamup.club/manifest.json), because the beamup tool is not working for me)
+- [ ] Support [my AnimeFLV addon](https://github.com/Pigamer37/animeflv-stremio-addon)'s ID's/slugs ("animeflv:{AnimeFLV-Slug}")
 
 ### Enhancements/new features
 - [X] Support MyAnimeList, AniDB, AniList and kitsu ID's and thus the kitsu Stremio addon (see [issue #2](/../../issues/2)) via <https://relations.yuna.moe/api/v2>
