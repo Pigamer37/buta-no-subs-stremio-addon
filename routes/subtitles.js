@@ -105,6 +105,19 @@ function HandleSubRequest(req, res, next) {
         })
       })
     })
+  } else if (videoID?.startsWith("animeflv")) { //If we got an AnimeFLV ID
+    const ID = idDetails[1] //We want the second part of the videoID, which is the animeFLV slug
+    const parsedSlug = ID.replaceAll("-", " ")
+    episode = idDetails[2] //undefined if we don't get an episode number in the query, which is fine
+    console.log(`\x1b[33mGot a ${req.params.type} with AnimeFLV ID:\x1b[39m ${ID}`)
+    console.log('\x1b[33mSearching for metadata in Jimaku for\x1b[39m', parsedSlug)
+    animeMetadataPromise = jimakuAPI.SearchForJimakuEntry(parsedSlug).catch((reason) => {
+      console.error("\x1b[31mDidn't get Jimaku entry because:\x1b[39m " + reason + ", \x1b[33msearching AniList...\x1b[39m")
+      return aniListAPI.GetAniListEntry(parsedSlug).catch((reason) => {
+        console.error("\x1b[31mDidn't get AniList entry because:\x1b[39m", reason)
+        throw reason
+      })
+    })
   } else if (videoID == "anilist") {
     const ID = idDetails[1]
     episode = idDetails[2] //undefined if we don't get an episode number in the query, which is fine

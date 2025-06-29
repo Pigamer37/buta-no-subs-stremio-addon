@@ -11,9 +11,10 @@ exports.UpdateKitsunekkoTitleFile = function () {
     return fsPromises.writeFile('./kitsunekko_titles.json', JSON.stringify(titles, (key, val) => {
       return ((key === "date") || (key === "size")) ? undefined : val //Remove date and size from the JSON file, as they are not needed for the titles
     }))
+  }).then(() => {
+    console.log('\x1b[32mKitsunekko titles "cached" successfully!\x1b[39m')
   }).catch((err) => {
     console.error('\x1b[31mFailed "caching" kitsunekko titles:\x1b[39m ' + err)
-    throw err
   })
 }
 
@@ -84,7 +85,7 @@ exports.GetKitsunekkoSubtitles = async function (url, episodeNumber = undefined,
       return checkSeason(title, seasonNumber) && checkEpisode(title, episodeNumber)
     })
     for (const subEntry of filteredData) {
-      if (!subEntry.title.endsWith(".srt") && !subEntry.title.endsWith(".ass") && !subEntry.title.endsWith(".ssa") 
+      if (!subEntry.title.endsWith(".srt") && !subEntry.title.endsWith(".ass") && !subEntry.title.endsWith(".ssa")
         && !subEntry.title.endsWith(".vtt") && !subEntry.title.endsWith(".ttml") && !subEntry.title.endsWith(".sub")) continue //Only subtitle files
       //add 1000 to the id to avoid 'collision' with other subtitle providers
       subtitles.push({ id: `${subtitles.length + 1001}`, url: "https://kitsunekko.net/" + subEntry.url, lang: "jpn" });

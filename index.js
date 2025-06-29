@@ -45,11 +45,12 @@ function ReadManifest() {
       ],
       "idPrefixes": [
         "tt",
-        "tmdb",
-        "anilist",
-        "kitsu",
-        "mal",
-        "anidb"
+        "tmdb:",
+        "animeflv:",
+        "anilist:",
+        "kitsu:",
+        "mal:",
+        "anidb:"
       ]/*,
       "behaviorHints": { "configurable": true }*/
     }
@@ -148,7 +149,6 @@ app.listen(process.env.PORT || 3000, () => {
   \x1b[39m`)
   const kitsunekkoAPI = require('./routes/kitsunekko.js')
   kitsunekkoAPI.UpdateKitsunekkoTitleFile().then(() => {
-    console.log('\x1b[32mKitsunekko titles "cached" successfully!\x1b[39m')
-    setInterval(kitsunekkoAPI.UpdateKitsunekkoTitleFile, 86400000); //Update every 24h
+    setInterval(kitsunekkoAPI.UpdateKitsunekkoTitleFile.bind(kitsunekkoAPI), 86400000); //Update every 24h
   })
 });
