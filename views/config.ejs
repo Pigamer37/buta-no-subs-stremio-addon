@@ -30,7 +30,7 @@
           <%= manifest.version %>
         </h2>
         <h2 class="description">
-          <%= manifest.description %>
+          <%= manifest.description.replaceAll(/https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/\/=]*)/gm, '<a href="$&" target="_blank">$&</a>') %>
         </h2>
       <% } %>
         <div class="separator"></div>

@@ -6,7 +6,7 @@
     <textarea class="form-element" id="manifest_url" rows="1"
       style="resize:none;overflow:hidden;text-align:center;font-size:unset;"
       readonly>https://buta-no-subs.com/manifest.json</textarea>
-    <script>const ta = document.getElementById('manifest_url'); ta.innerText = document.URL + "/manifest.json"; ta.style.minHeight = ta.scrollHeight + "px";</script>
+    <script>const ta = document.getElementById('manifest_url'); ta.innerText = document.URL + "manifest.json"; ta.style.minHeight = ta.scrollHeight + "px";</script>
   </div>
   <button class="full-width" onclick="{navigator.clipboard.writeText(getElementById('manifest_url').value).then((e)=>{
           console.log('copied!');event.target.innerText='Copied!';setTimeout(function(){
