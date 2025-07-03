@@ -4,8 +4,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title><%= manifest?.name || 'Letterboxd Stremio Addon' %></title>
+  <title>
+    <%= manifest?.name || 'Buta no Subs' %>
+  </title>
   <link rel="shortcut icon" href="<%= manifest?.logo || 'https://www.stremio.com/website/stremio-logo-small.png' %>"
+    type="image/x-icon">
+  <link rel="icon" href="<%= manifest?.logo || 'https://www.stremio.com/website/stremio-logo-small.png' %>"
     type="image/x-icon">
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@2.1.0/build/pure-min.css"
@@ -14,23 +18,27 @@
 
 <body>
   <%- include('./critical_styles'); %>
-  <div class="addon">
-    <% if (manifest) { %>
-    <div class="logo">
-      <img src="<%= manifest?.logo %>">
+    <div class="addon">
+      <% if (manifest) { %>
+        <div class="logo">
+          <img src="<%= manifest?.logo %>" alt="Buta no Subs Logo">
+        </div>
+        <h1 class="name">
+          <%= manifest?.name || 'Buta no Subs Stremio Addon' %>
+        </h1>
+        <h2 class="version">
+          <%= manifest.version %>
+        </h2>
+        <h2 class="description">
+          <%= manifest.description %>
+        </h2>
+      <% } %>
+        <div class="separator"></div>
+        <div>
+          <%- include('./content'); %>
+        </div>
+        <br>
     </div>
-    <% } %>
-    <h1 class="name"><%= manifest?.name || 'Letterboxd Stremio Addon' %></h1>
-    <% if (manifest) { %>
-    <h2 class="version"><%= manifest.version %></h2>
-    <h2 class="description"><%= manifest.description %></h2>
-    <% } %>
-    <div class="separator"></div>
-    <div>
-      <%- include('./content'); %>
-    </div>
-    <br>
-  </div>
 
 </body>
 

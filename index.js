@@ -76,6 +76,15 @@ app.get("/:config/manifest.json", (_req, res) => {
   })
 })
 
+app.get("/", (req, res) => {
+  ReadManifest().then((manif) => {
+    res.render('config', {
+      manifest: manif
+    })
+  }).catch((err) => {
+    res.status(500).statusMessage("Error reading file: " + err);
+  })
+})
 /*app.get("/configure", (req, res) => {
   ReadManifest().then((manif) => {
     let base_url = req.host;
