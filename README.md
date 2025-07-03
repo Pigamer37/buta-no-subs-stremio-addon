@@ -1,10 +1,10 @@
-# [Buta no subs Stremio addon](stremio://buta-no-subs-stremio-addon.onrender.com/manifest.json)
+# [Buta no subs Stremio addon](https://buta-no-subs-stremio-addon.onrender.com/)
 <p align="center"><img src="https://i.imgur.com/VZK8qw2.jpeg" alt="Buta no subs logo" height="256"/></p>
 
 Node.js & Express based addon trying to provide Japanese subtitles to Stremio. (I'm new to backend so I'm using it as a learning experience).
 
 ## Normal use:
-### Install by clicking [this link](stremio://buta-no-subs-stremio-addon.onrender.com/manifest.json) or add <https://buta-no-subs-stremio-addon.onrender.com/manifest.json> to your addons
+### Install by going to [the homepage](https://buta-no-subs-stremio-addon.onrender.com/) or add <https://buta-no-subs-stremio-addon.onrender.com/manifest.json> to your addons manually (you can also use the stremio:// deep link if you know how).
 Whenever you start watching something on Stremio that matches some parameters set in the manifest (generated on [`index.js`](index.js)), the platform will call this addon. When the program can get the data for the item you are about to watch, each of the subtitle options (which are the different files) will appear in the subtitles menu under the japanese language in the ADDONS subsection, and will be labeled with a number so you can select which one to use.
 
 > [!TIP]
@@ -91,14 +91,14 @@ Parameters
 
 ## TO DO:
 - [X] Publish to Stremio Addon Catalog (not on [Beam Up](https://eb33844c60da-jp-subs-stremio-addon.baby-beamup.club/manifest.json), because the beamup tool is not working for me)
-- [ ] Support [my AnimeFLV addon](https://github.com/Pigamer37/animeflv-stremio-addon)'s ID's/slugs ("animeflv:{AnimeFLV-Slug}")
+- [X] Support [my AnimeFLV addon](https://github.com/Pigamer37/animeflv-stremio-addon)'s ID's/slugs ("animeflv:{AnimeFLV-Slug}")
 
 ### Enhancements/new features
 - [X] Support MyAnimeList, AniDB, AniList and kitsu ID's and thus the kitsu Stremio addon (see [issue #2](/../../issues/2)) via <https://relations.yuna.moe/api/v2>
 - [X] Use <https://relations.yuna.moe/api/v2> to get AniList ID directly instead of passing through a title text search, because sometimes Jimaku/AniList return false positives when searching by title
 - [X] Use [Mysubs-API](https://github.com/HasanAbbadi/mysubs-api/tree/master) as a source for extended results
+- [X] Touch up the views (made a dynamic homepage)
 - [ ] Investigate (and maybe support?) matchoo. See [japsub-api repo](https://github.com/HasanAbbadi/japsub-api/blob/master/scrapers/matchoo.js)
-- [ ] Touch up the views (the homepage, mainly)
 - [ ] Investigate Stremio API
 
 ## Documentation used:
