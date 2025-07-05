@@ -196,7 +196,8 @@ function HandleSubRequest(req, res, next) {
         res.json({ subtitles, message: "No subtitles found" });
         next()
       } else {
-        res.json({ subtitles, cacheMaxAge: 10800, staleRevalidate: 3600, staleError: 259200, message: "Got Japanese subtitles!" });
+        res.header('Cache-Control', "max-age=10800, stale-while-revalidate=3600, stale-if-error=259200");
+        res.json({ subtitles, message: "Got Japanese subtitles!" });
         next()
       }
     })
