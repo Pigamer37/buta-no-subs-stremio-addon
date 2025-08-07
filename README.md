@@ -20,11 +20,12 @@ If you like the addon and would like to thank me monetarily, you can do so throu
 > First of all, I need to say that this is not the intended use of this app. As you can read throughout this document, the intended use is to provide japanese subtitles according to the [Stremio spec](https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/requests/defineSubtitlesHandler.md). However, astute individuals may have gathered that with the right request, it can be used as a japanese subtitle API. If you are thinking about doing this:
 > - Please consult me first: You can do this via this repo's Issue tab, or using the social links in my GitHub profile. Because this app uses **MY** API keys, I could get in trouble or rate limited by these API's, or even with Stremio because of excessive requests.
 > - Fork/clone the repo and make your own instance: All the API's I've used are free, [nothing's stopping you from hosting your own instance](LICENSE)! Also, this way you won't share the request load this addon gets. In this case I'd ask you to change the logo and name and maybe credit me ([maybe even a tip?](#tips-are-welcome)), although *I think* legally you are not obligated to do any of those, but that wouldn't be very *cool* of you :rage:
+Here is [a complete reference page](https://buta-no-subs.apidocumentation.com/buta-no-subs), and the [OpenAPI file](OpenAPI.yaml).
 Here's the path to call it (parameters are marked by being enclosed in {} and described below):
 ```
 /subtitles/{type}/{ID}.json
 ```
-Parameters
+Parameters:
 1. `type`: should not matter, but to make sure, use 'movie' or 'series' depending on what the item is
 2. `ID`: Except for IMDB, different seasons have different ID's. Here we have some options:
    - `IMDB ID`: starts with "tt", followed by a number, always. If you are looking for a series, you can specify the season and episode numbers. Example: `tt5370118:1:2` *should* give results for Konosuba Season 1 Episode 2

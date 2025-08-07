@@ -1,0 +1,113 @@
+openapi: 3.1.0
+# remember to update on https://docs.scalar.com/
+info:
+  title: Buta no subs
+  description: This API provides japanese subtitles for a variety of media, and
+    conforms to the Stremio addon specs.
+  version: 1.0.0
+tags:
+  - name: subtitles
+servers:
+  - url: "https://buta-no-subs-stremio-addon.onrender.com"
+    description: "Please don't abuse the API, it's meant to be used by Stremio users and misuse may cost money"
+paths:
+  /subtitles/{type}/{ID}.json:
+    get:
+      tags:
+        - subtitles
+      summary: Get subtitles object
+      description: Gets a subtitle objects response, with subtitle objects containing URL's for subtitle files for the requested resource
+      operationId: getSubtitles
+      parameters:
+        - name: type
+          in: path
+          required: true
+          description: Type of media for which the subtitles are requested.
+          schema:
+            type: string
+            enum:
+              - movie
+              - series
+            example: series
+        - name: ID
+          in: path
+          required: true
+          description: ID of media for which the subtitles are requested.
+          schema:
+            type: string
+          examples:
+            IMDB:
+              description:
+                starts with 'tt', followed by a number, always. If you are looking
+                for a series, you can specify the season and episode numbers
+              value: tt5370118:1:2
+            TMDB:
+              description:
+                starts with 'tmdb:', followed by a number, always. You can specify
+                a season and episode number if you want.
+              value: tmdb:65844:1:2
+            kitsu:
+              description:
+                starts with 'kitsu:', followed by a number, always. You can specify
+                an episode number if you want.
+              value: kitsu:10941:2
+            AniList:
+              description:
+                starts with 'anilist:', followed by a number, always. You can
+                specify an episode number if you want.
+              value: anilist:21202:2
+            MyAnimeList:
+              description:
+                starts with 'mal:', followed by a number, always. You can specify
+                an episode number if you want.
+              value: mal:30831:2
+            aniDB:
+              description:
+                starts with 'anidb:', followed by a number, always. You can specify
+                an episode number if you want.
+              value: anidb:11261:2
+      responses:
+        "200":
+          description:
+            If the API is up, it will always return a 200 OK response. You'll
+            have to parse the response to see if it was successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  subtitles:
+                    type: array
+                    description: List of subtitles available for the requested media.
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description:
+                            Unique identifier for each subtitle, if you have more than one
+                            subtitle with the same language, the id will
+                            differentiate them
+                        url:
+                          type: string
+                          description: URL to the subtitle file
+                        lang:
+                          type: string
+                          description: Language code for the subtitle, in our case it will always be 'jpn'
+                          enum:
+                            - jpn
+                  message:
+                    type: string
+                    description:
+                      A message indicating the status of the request. If successful, it
+                      will be 'Got Japanese subtitles!', otherwise it holds
+                      information about the error.
+                example:
+                  subtitles:
+                    - id: "1"
+                      url: https://example.com/subtitles/1.srt
+                      lang: jpn
+                    - id: "2"
+                      url: https://example.com/subtitles/subtitle.ass
+                      lang: jpn
+                  message: Got Japanese subtitles!

@@ -4,7 +4,7 @@
   "description": "Node.js addon to add japanese subtitles to Stremio. GitHub repo: https://github.com/Pigamer37/buta-no-subs-stremio-addon",
   "main": "index.js",
   "scripts": {
-    "devStart": "nodemon index.js --ignore kitsunekko_titles.json --ignore README",
+    "devStart": "nodemon index.js --ignore kitsunekko_titles.json --ignore README --ignore OpenAPI.yaml",
     "start": "node index.js"
   },
   "repository": {
