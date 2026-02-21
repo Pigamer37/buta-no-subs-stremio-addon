@@ -49,8 +49,7 @@ function HandleJimakuEntryResponse(res) {
  */
 exports.GetJimakuFiles = async function (jimakuID, episodeNumber = undefined) {
   const options = { headers: GetJimakuAuthToken() }
-  const reqURL = episodeNumber ? `${JIMAKU_API_BASE}/entries/${jimakuID}/files?episode=${episodeNumber}` : `${JIMAKU_API_BASE}/entries/${jimakuID}/files`
-  //If we have an episode number, we can try to get the files for that episode
+  const reqURL = `${JIMAKU_API_BASE}/entries/${jimakuID}/files`
   return fetch(reqURL, options).then((resp) => {
     if ((!resp.ok) || resp.status !== 200) throw Error(`HTTP error! Status: ${resp.status}`)
     if (resp === undefined) throw Error(`undefined response!`)
@@ -58,18 +57,31 @@ exports.GetJimakuFiles = async function (jimakuID, episodeNumber = undefined) {
   }).then((data) => {
     if (data === undefined || !data[0]) throw Error("Invalid response!")
     //Parse the data to get the files
-    return ParseJimakuFiles(data)
+    return ParseJimakuFiles(data, episodeNumber)
   })
 }
 
-function ParseJimakuFiles(data) {
+function ParseJimakuFiles(data, episodeNumber) {
   //data is an array of files
   let subtitles = []
   for (const subEntry of data) {
     if (!subEntry.name.endsWith(".srt") && !subEntry.name.endsWith(".ass") && !subEntry.name.endsWith(".ssa") 
         && !subEntry.name.endsWith(".vtt") && !subEntry.name.endsWith(".ttml") && !subEntry.name.endsWith(".sub")) continue //Only subtitle files
-    //We can now respond with the subtitles
-    subtitles.push({ id: `${subtitles.length + 1}`, url: subEntry.url, lang: "jpn" });
+    //from japsub-api. Clean title from [*], v2, extensions, sources and dates
+    const title = subEntry.name.replace(/[\[\(][0-9A-Za-z\-\,\ \.]*[\]\)]/g,"").replace(/[vV][0-9]+/,"").replace(/.*\.(txt|md|sup)$/, "").replace(/(1080p|720p|WEBRip|Netflix).*/, "").replace(/[\[\(][0-9]+(\.|-)[0-9]*(\.|-)[0-9]*[\]\)]/, "")
+    if (checkEpisode(title, episodeNumber)) {
+        //We can now respond with the subtitles
+        subtitles.push({ id: `${subtitles.length + 1}`, url: subEntry.url, lang: "jpn" });
+    }
   }
   return subtitles;
+}
+
+//from japsub-api
+function checkEpisode(sub, episode) {
+  //remove season number
+  sub = sub.replace(/([Ss][Ee][Aa][Ss][Oo][Nn]|[Ss]).?[0-9]*/g, "");
+  const singleRegex = new RegExp(`[Ee]?(?<![0-9])0?(${episode})(?![0-9])`, "g");
+  const singleMatch = singleRegex.exec(sub);
+  if (singleMatch || !episode) return true;
 }
