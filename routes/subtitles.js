@@ -35,8 +35,27 @@ function HandleLongSubRequest(req, res, next) {
  */
 function HandleSubRequest(req, res, next) {
   console.log(`\x1b[96mEntered HandleSubRequest with\x1b[39m ${req.originalUrl}`)
-  const idDetails = req.params.videoId.split(':')
-  const videoID = idDetails[0] //We only want the first part of the videoID, which is the IMDB ID, the rest would be the season and episode
+
+  let idDetails
+  try {
+    if (!req.params.videoId) {
+      throw new Error("Missing videoId")
+    }
+
+    idDetails = req.params.videoId.split(':')
+  } catch (err) {
+    console.error('\x1b[31mInvalid video ID:\x1b[39m', err)
+
+    if (!res.headersSent) {
+      return res.json({
+        subtitles: [],
+        message: "Invalid video ID format"
+      })
+    }
+    return
+  }
+
+  const videoID = idDetails[0]
   let episode, season, animeMetadataPromise
   let subtitles = []
 
