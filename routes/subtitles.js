@@ -177,20 +177,20 @@ function HandleSubRequest(req, res, next) {
       })
     } else { jimakuPromise = kitsunekkoPromise = Promise.reject(Error("No AniList ID!")) }
 
-    if (animeMetadata.imdbID || animeMetadata.engTitle || animeMetadata.title) {
-      console.log('\x1b[33mSearching for subtitle files in MySubs...\x1b[39m')
-      mySubsPromise = mySubsAPI.GetMySubs(animeMetadata.imdbID || animeMetadata.engTitle, season, episode).then((mySubs) => {
-        console.log(`\x1b[36mGot ${mySubs.length} MySubs files\x1b[39m`)
-        subtitles = subtitles.concat(mySubs) //Concat the files to the subtitles array
-      }).catch((err) => {
-        console.error('\x1b[31mFailed getting MySubs subtitles:\x1b[39m ' + err)
-      })
-    } else {
-      console.log('\x1b[31mGot no IMDB ID or english title to search for in MySubs...\x1b[39m')
-      mySubsPromise = Promise.reject(Error("No IMDB ID or English title!"))
-    }
+    // if (animeMetadata.imdbID || animeMetadata.engTitle || animeMetadata.title) {
+    //   console.log('\x1b[33mSearching for subtitle files in MySubs...\x1b[39m')
+    //   mySubsPromise = mySubsAPI.GetMySubs(animeMetadata.imdbID || animeMetadata.engTitle, season, episode).then((mySubs) => {
+    //     console.log(`\x1b[36mGot ${mySubs.length} MySubs files\x1b[39m`)
+    //     subtitles = subtitles.concat(mySubs) //Concat the files to the subtitles array
+    //   }).catch((err) => {
+    //     console.error('\x1b[31mFailed getting MySubs subtitles:\x1b[39m ' + err)
+    //   })
+    // } else {
+    //   console.log('\x1b[31mGot no IMDB ID or english title to search for in MySubs...\x1b[39m')
+    //   mySubsPromise = Promise.reject(Error("No IMDB ID or English title!"))
+    // }
 
-    Promise.allSettled([jimakuPromise, kitsunekkoPromise, mySubsPromise]).then(() => {
+    Promise.allSettled([jimakuPromise, kitsunekkoPromise/*, mySubsPromise*/]).then(() => {
       console.log(`\x1b[36mGot ${subtitles.length} subtitles\x1b[39m`)
       if (subtitles.length < 1) {
         res.json({ subtitles, message: "No subtitles found" });

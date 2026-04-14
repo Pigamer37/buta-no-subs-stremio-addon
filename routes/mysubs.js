@@ -13,7 +13,7 @@ exports.GetMySubs = async function (query, season = undefined, episode = undefin
     return res.json().then((data) => {
       if (data === undefined || !data[0]) throw Error("Empty response!")
       //add 2000 to the ID to avoid conflicts with other subtitle providers
-      return data.map((subEntry, idx) => { return { id: idx + 2001, url: `https://www.mysubs.org/get-subtitle/${subEntry.id}`, lang: "jpn" } })
+      return data.map((subEntry, idx) => { return { id: idx + 2001, url: `https://www.mysubs.org/get-subtitle/${subEntry.id}`, lang: "jpn", label: `MySubs: ${subEntry.id}` } })
     })
   })
 }

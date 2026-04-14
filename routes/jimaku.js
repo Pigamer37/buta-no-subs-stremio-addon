@@ -96,7 +96,7 @@ function ParseJimakuFiles(data, seasonNumber = undefined) {
     if (!subEntry.name.endsWith(".srt") && !subEntry.name.endsWith(".ass") && !subEntry.name.endsWith(".ssa") 
         && !subEntry.name.endsWith(".vtt") && !subEntry.name.endsWith(".ttml") && !subEntry.name.endsWith(".sub")) continue //Only subtitle files
     //We can now respond with the subtitles
-    subtitles.push({ id: `${subtitles.length + 1}`, url: subEntry.url, lang: "jpn" });
+    subtitles.push({ id: `${subtitles.length + 1}`, url: subEntry.url, lang: "jpn", label: `Jimaku: ${subEntry.name}` });
   }
   return subtitles;
 }
