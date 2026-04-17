@@ -4,7 +4,7 @@ info:
   title: Buta no subs
   description: This API provides japanese subtitles for a variety of media, and
     conforms to the Stremio addon specs.
-  version: 1.0.0
+  version: 1.1.0
 tags:
   - name: subtitles
 servers:
@@ -66,6 +66,12 @@ paths:
                 starts with 'anidb:', followed by a number, always. You can specify
                 an episode number if you want.
               value: anidb:11261:2
+            AnimeFLV type ID:
+              description: 
+                starts with 'animeflv:', followed by a slug (string), always. You
+                can specify an episode number if you want. This kind of ID supports
+                all ID's in [my anime addon](https://github.com/Pigamer37/animeflv-stremio-addon)
+              value: animeflv:kono-subarashii-sekai-ni-shukufuku-wo:2
       responses:
         "200":
           description:
@@ -81,6 +87,10 @@ paths:
                     description: List of subtitles available for the requested media.
                     items:
                       type: object
+                      required:
+                        - id
+                        - url
+                        - lang
                       properties:
                         id:
                           type: string
@@ -96,6 +106,9 @@ paths:
                           description: Language code for the subtitle, in our case it will always be 'jpn'
                           enum:
                             - jpn
+                        label:
+                          type: string
+                          description: 'Shown in the Stremio subtitle picker instead of the language name. The format is "{Provider}: {file_name}"'
                   message:
                     type: string
                     description:
@@ -107,7 +120,9 @@ paths:
                     - id: "1"
                       url: https://example.com/subtitles/1.srt
                       lang: jpn
+                      label: 'Provider1: Series_[S01E02].srt'
                     - id: "2"
                       url: https://example.com/subtitles/subtitle.ass
                       lang: jpn
+                      label: 'Provider2: Series_SUB_S1E2.ass'
                   message: Got Japanese subtitles!

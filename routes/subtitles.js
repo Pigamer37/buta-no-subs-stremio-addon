@@ -105,7 +105,7 @@ function HandleSubRequest(req, res, next) {
         })
       })
     })
-  } else if (videoID?.startsWith("animeflv")) { //If we got an AnimeFLV ID
+  } else if ((videoID?.startsWith("animeflv")) || (videoID?.startsWith("animeav1")) || (videoID?.startsWith("henaojara")) || (videoID?.startsWith("tioanime"))) { //If we got an AnimeFLV ID
     const ID = idDetails[1] //We want the second part of the videoID, which is the animeFLV slug
     const parsedSlug = ID.replaceAll("-", " ")
     episode = idDetails[2] //undefined if we don't get an episode number in the query, which is fine

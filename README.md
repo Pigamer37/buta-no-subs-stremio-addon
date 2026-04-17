@@ -1,11 +1,11 @@
 # [Buta no subs Stremio addon](https://buta-no-subs-stremio-addon.onrender.com/)
 <p align="center"><img src="https://i.imgur.com/VZK8qw2.jpeg" alt="Buta no subs logo" height="256"/></p>
 
-Node.js & Express based addon trying to provide Japanese subtitles to Stremio. (I'm new to backend so I'm using it as a learning experience).
+Node.js & Express based addon to provide Japanese subtitles to Stremio. (I'm new to backend so I'm using it as a learning experience).
 
 ## Normal use:
-### Install by going to [the homepage](https://buta-no-subs-stremio-addon.onrender.com/) or add <https://buta-no-subs-stremio-addon.onrender.com/manifest.json> to your addons manually (you can also use the stremio:// deep link if you know how).
-Whenever you start watching something on Stremio that matches some parameters set in the manifest (generated on [`index.js`](index.js)), the platform will call this addon. When the program can get the data for the item you are about to watch, each of the subtitle options (which are the different files) will appear in the subtitles menu under the japanese language in the ADDONS subsection, and will be labeled with a number so you can select which one to use.
+### Install by going to [the addon's install page](https://buta-no-subs-stremio-addon.onrender.com/), [its page on Stremio Addons](https://stremio-addons.net/addons/buta-no-subs-stremio-addon) or add <https://buta-no-subs-stremio-addon.onrender.com/manifest.json> to your addons manually (you can also use the stremio:// deep link if you know how).
+Whenever you start watching something on Stremio that matches some parameters set in the manifest (generated on [`index.js`](index.js)), the platform will call this addon. When the program can get the data for the item you are about to watch, each of the subtitle options (which are the different files) will appear in the subtitles menu under the japanese language, and will be labeled based on the provider and filename so you can choose which one to use.
 
 > [!TIP]
 > ### Recommendations:
@@ -27,20 +27,21 @@ Here's the path to call it (parameters are marked by being enclosed in {} and de
 ```
 Parameters:
 1. `type`: should not matter, but to make sure, use 'movie' or 'series' depending on what the item is
-2. `ID`: Except for IMDB, different seasons have different ID's. Here we have some options:
+2. `ID`: Except for IMDB and TMDB, different seasons have different ID's. Here we have some options:
    - `IMDB ID`: starts with "tt", followed by a number, always. If you are looking for a series, you can specify the season and episode numbers. Example: `tt5370118:1:2` *should* give results for Konosuba Season 1 Episode 2
    - `TMDB ID`: starts with "tmdb:", followed by a number, always. You can specify a season and episode number if you want. Example: `tmdb:65844:1:2` *should* give results for Konosuba Season 1 Episode 2
    - `kitsu ID`: starts with "kitsu:", followed by a number, always. You can specify an episode number if you want. Example: `kitsu:10941:2` *should* give results for Konosuba (Season 1 was specified with the kitsu ID) Episode 2
    - `AniList ID`: starts with "anilist:", followed by a number, always. You can specify an episode number if you want. Example: `anilist:21202:2` *should* give results for Konosuba (Season 1 was specified with the AniList ID) Episode 2
    - `MyAnimeList ID`: starts with "mal:", followed by a number, always. You can specify an episode number if you want. Example: `mal:30831:2` *should* give results for Konosuba (Season 1 was specified with the AniList ID) Episode 2
    - `aniDB ID`: starts with "anidb:", followed by a number, always. You can specify an episode number if you want. Example: `anidb:11261:2` *should* give results for Konosuba (Season 1 was specified with the AniList ID) Episode 2
+   - `AnimeFLV type ID`: starts with "animeflv:", followed by a slug (string), always. You can specify an episode number if you want. Example: `animeflv:kono-subarashii-sekai-ni-shukufuku-wo:2` *should* give results for Konosuba (Season 1 was specified with the AnimeFLV ID) Episode 2. This kind of ID supports all ID's in [my anime addon](https://github.com/Pigamer37/animeflv-stremio-addon)
 
 ## Run locally:
 > [!IMPORTANT]
 > 0. Previous steps/requirements:
->  - This project runs on Node.js, so install both Node.js and the npm (Node Package Manager)
+>  - This project runs on Node.js, so install both Node.js and npm (Node Package Manager)
 >  - You'll need to get all necessary API keys. Right now you only need to get keys for the TMDB API and the Jimaku API [^API], which are free. This addon uses the AniList API and <https://relations.yuna.moe/api/v2> too, but those don't need a key/authentication for publicly accessible data
-> [^API]: Because of how it works, you can *probably* (I have not tested this) get away with not setting these keys, and you'll just won't get subtitles from Jimaku, or be able to process IMDB ID (starting with "tt") based items.
+> [^API]: Because of how it works, you can *probably* (I have not tested this) get away with not setting these keys, and you'll just won't get subtitles from Jimaku, or be able to process IMDB or TMDB IDs (starting with "tt" or "tmdb:") based items.
 >  - Enter your parameters inside a .env file like this: [^dotenv]
 > [^dotenv]: You just need to make a file inside the top level repository folder, enter the required information and rename it ".env". You don't need to install the **dotenv** npm package manually, the next steps will take care of project dependencies.
 >    ```
@@ -68,25 +69,25 @@ Parameters:
 >
 > In case TMDB doesn't work, the [Cinemeta Stremio Addon](https://v3-cinemeta.strem.io/) will be used to get the item's metadata.
 >
-> <p align="center"><img src="https://jimaku.cc/static/icons/android-chrome-512x512.png" alt="Jimaku logo" height="100"/></p>
+> <p align="center"><img src="https://jimaku.cc/static/icons/android-chrome-512x512.png" alt="Jimaku logo" width="120"/></p>
 > This application/addon uses Jimaku and the Jimaku API but is not endorsed, certified, or otherwise approved by Jimaku.
 >
-> <p align="center"><img src="https://kitsunekko.net/favicon.ico" alt="kitsunekko logo" height="100"/></p>
+> <p align="center"><img src="https://kitsunekko.net/favicon.ico" alt="kitsunekko logo" width="120"/></p>
 > This application/addon uses kitsunekko by scrapping it for subtitle sources, but is not endorsed, certified, or otherwise approved by kitsunekko.
 >
 > ![MySubs logo](https://www.mysubs.org/logo.png)
 > This application/addon uses MySubs as a source but is not endorsed, certified, or otherwise approved by TMDB.
 >
-> <p align="center"><img src="https://yt3.ggpht.com/a-/AAuE7mBuEI3rUQY_s7MmzbnBmHMZxuCu11BJzISV8w=s900-mo-c-c0xffffffff-rj-k-no" alt="AniList logo" height="100"/></p>
+> <p align="center"><img src="https://yt3.ggpht.com/a-/AAuE7mBuEI3rUQY_s7MmzbnBmHMZxuCu11BJzISV8w=s900-mo-c-c0xffffffff-rj-k-no" alt="AniList logo" width="120"/></p>
 > This application/addon uses AniList and the AniList API to get metadata. It is not endorsed, certified, or otherwise approved by AniList.
 >
-> <p align="center"><img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/MyAnimeList_Logo.png" alt="MyAnimeList logo" height="100"/></p>
+> <p align="center"><img src="https://upload.wikimedia.org/wikipedia/commons/7/7a/MyAnimeList_Logo.png" alt="MyAnimeList logo" width="120"/></p>
 > This application/addon is able to process MyAnimeList ID's, but is not endorsed, certified, or otherwise approved by MyAnimeList.
 >
-> <p align="center"><img src="https://upload.wikimedia.org/wikipedia/commons/e/ec/AniDB_apple-touch-icon.png" alt="aniDB logo" height="100"/></p>
+> <p align="center"><img src="https://upload.wikimedia.org/wikipedia/commons/e/ec/AniDB_apple-touch-icon.png" alt="aniDB logo" width="120"/></p>
 > This application/addon is able to process aniDB ID's, but is not endorsed, certified, or otherwise approved by aniDB.
 >
-> <p align="center"><img src="https://kitsu.app/kitsu-256-d4c4633df2c4745352100a4f0a7f5f9e.png" alt="kitsu logo" height="100"/></p>
+> <p align="center"><img src="https://kitsu.app/kitsu-256-d4c4633df2c4745352100a4f0a7f5f9e.png" alt="kitsu logo" width="120"/></p>
 > This application/addon is able to process kitsu ID's, but is not endorsed, certified, or otherwise approved by kitsu.
 
 
