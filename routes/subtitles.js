@@ -40,7 +40,7 @@ function HandleSubRequest(req, res, next) {
   let episode, season, animeMetadataPromise
   let subtitles = []
 
-  if (videoID?.startsWith("tt") || videoID?.startsWith("tmdb")) { //If we got an IMDB ID/TMDB ID
+  if (/^tt\d+/.test(req.params.videoId) || /^tmdb:\d+/.test(req.params.videoId)) { //If we got an IMDB ID/TMDB ID
     let ID, idType
     if (videoID.startsWith("tmdb")) {
       idType = videoID
