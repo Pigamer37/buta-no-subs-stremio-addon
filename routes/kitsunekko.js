@@ -75,7 +75,7 @@ function checkEpisode(sub, episode) {
  * @param {String} url - the URL to the directory listing, e.g. "https://kitsunekko.net/dirlist.php?dir=subtitles%2Fjapanese%2FKono+Subarashii+Sekai+ni+Bakuen+wo%21%2F"
  * @returns {Promise<Object>} - returns a promise that resolves to an object containing the subtitle objects
  */
-exports.GetKitsunekkoSubtitles = async function (url, episodeNumber = undefined, seasonNumber = undefined) {
+exports.GetKitsunekkoSubtitles = async function (url, episodeNumber = undefined, seasonNumber = undefined, fileName=undefined) {
   return await FetchTable("/dirlist.php?dir=subtitles%2Fjapanese%2F" + url + '/&sort=date&order=desc').then((data) => {
     let subtitles = []
     //from japsub-api
@@ -85,10 +85,10 @@ exports.GetKitsunekkoSubtitles = async function (url, episodeNumber = undefined,
       return checkSeason(title, seasonNumber) && checkEpisode(title, episodeNumber)
     })
     for (const subEntry of filteredData) {
-      if (!subEntry.title.endsWith(".srt") && !subEntry.title.endsWith(".ass") && !subEntry.title.endsWith(".ssa")
-        && !subEntry.title.endsWith(".vtt") && !subEntry.title.endsWith(".ttml") && !subEntry.title.endsWith(".sub")) continue //Only subtitle files
+      if(!/\.(?:srt|ass|ssa|vtt|ttml|sub)$/.test(subEntry.title)) continue //Only subtitle files
+      const subName=subEntry.title.replace(/\.(?:srt|ass|ssa|vtt|ttml|sub)$/,"")
       //add 1000 to the id to avoid 'collision' with other subtitle providers
-      subtitles.push({ id: `${subtitles.length + 1001}`, url: "https://kitsunekko.net/" + subEntry.url, lang: "jpn", label: `Kitsunekko: ${subEntry.title}` });
+      subtitles.push({ id: `${subtitles.length + 1001}`, url: "https://kitsunekko.net/" + subEntry.url, lang: "jpn", label: `${(fileName?.includes(subName))?"(File match!) ":""}Kitsunekko: ${subEntry.title}` });
     }
 
     return subtitles

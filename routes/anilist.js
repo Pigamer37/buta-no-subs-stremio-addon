@@ -111,7 +111,7 @@ exports.GetAniListIDFromMOVIEDBID = async function (IDType, ID, season = undefin
           return { anilist_id: result.anilist, [`${IDType}ID`]: ID }
         }
       }//we didn't get a match, throw error to search by name
-      throw Error(`No matching season found for IMDB ID ${ID} and season ${season}`)
+      throw Error(`No matching season found for ${IDType} ID ${ID} and season ${season}`)
     } else {
       return { anilist_id: data[0].anilist, [`${IDType}ID`]: ID } //return first result
     }

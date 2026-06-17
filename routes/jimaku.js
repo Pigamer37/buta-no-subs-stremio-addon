@@ -9,9 +9,9 @@ GetJimakuAuthToken = function () {
 }
 const JIMAKU_API_BASE = "https://jimaku.cc/api"
 //Only works for Live actions???
-exports.GetJimakuEntryFromTMDB = async function (tmdbID) {
+exports.GetJimakuEntryFromTMDB = async function (tmdbID, type="series") {
   const options = { headers: GetJimakuAuthToken() }
-  return fetch(`${JIMAKU_API_BASE}/entries/search?tmdb_id=tv:${tmdbID}`, options).then(HandleJimakuEntryResponse)
+  return fetch(`${JIMAKU_API_BASE}/entries/search?tmdb_id=${(type==="movie")?type:"tv"}:${tmdbID}`, options).then(HandleJimakuEntryResponse)
 }
 /**
  * @param {String} aniListID - AniList ID of the anime, like "12345"
@@ -38,7 +38,18 @@ function HandleJimakuEntryResponse(res) {
     //console.log("Jimaku search result:", data[0])
     if (data === undefined || !data[0]) throw Error("Invalid response!")
     //send first result
-    return data[0]
+    return data.map((e)=>{
+      return {
+        jimakuID: e.id,
+        title: e.name,
+        english_name: e.english_name,
+        japanese_name: e.japanese_name,
+        anilist_id: e.anilist_id,
+        type: (e.flags?.movie)?"movie":"series",
+        adult: e.flags?.adult,
+        tmdbID: e.tmdb_id?.replace("tv:","")?.replace("movie:","")
+      }
+    })[0]
   })
 }
 /**
@@ -47,7 +58,7 @@ function HandleJimakuEntryResponse(res) {
  * @param {Number} [episodeNumber] - optional episode number, to refine the query to the API
  * @returns 
  */
-exports.GetJimakuFiles = async function (jimakuID, episodeNumber = undefined, seasonNumber = undefined) {
+exports.GetJimakuFiles = async function (jimakuID, episodeNumber=undefined, seasonNumber=undefined, fileName=undefined) {
   const options = { headers: GetJimakuAuthToken() }
   const reqURL = episodeNumber ? `${JIMAKU_API_BASE}/entries/${jimakuID}/files?episode=${episodeNumber}` : `${JIMAKU_API_BASE}/entries/${jimakuID}/files`
   //If we have an episode number, we can try to get the files for that episode
@@ -72,11 +83,11 @@ exports.GetJimakuFiles = async function (jimakuID, episodeNumber = undefined, se
     } else return data
     //Parse the data to get the files
   }).then((data) => {
-    return ParseJimakuFiles(data, seasonNumber)
+    return ParseJimakuFiles(data, seasonNumber, fileName)
   })
 }
 
-function ParseJimakuFiles(data, seasonNumber = undefined) {
+function ParseJimakuFiles(data, seasonNumber=undefined,fileName=undefined) {
   //data is an array of files
   if (seasonNumber !== undefined) {
     data.sort((a, b) => {
@@ -92,11 +103,12 @@ function ParseJimakuFiles(data, seasonNumber = undefined) {
     })
   }
   let subtitles = []
+  console.log(data)
   for (const subEntry of data) {
-    if (!subEntry.name.endsWith(".srt") && !subEntry.name.endsWith(".ass") && !subEntry.name.endsWith(".ssa") 
-        && !subEntry.name.endsWith(".vtt") && !subEntry.name.endsWith(".ttml") && !subEntry.name.endsWith(".sub")) continue //Only subtitle files
+    if(!/\.(?:srt|ass|ssa|vtt|ttml|sub)$/.test(subEntry.name)) continue //Only subtitle files
+    const subName=subEntry.name.replace(/\.(?:srt|ass|ssa|vtt|ttml|sub)$/,"")
     //We can now respond with the subtitles
-    subtitles.push({ id: `${subtitles.length + 1}`, url: subEntry.url, lang: "jpn", label: `Jimaku: ${subEntry.name}` });
+    subtitles.push({ id: `${subtitles.length + 1}`, url: subEntry.url, lang: "jpn", label: `${(fileName?.includes(subName))?"(File match!) ":""}Jimaku: ${subEntry.name}` });
   }
   return subtitles;
 }
