@@ -55,7 +55,7 @@ function HandleSubRequest(req, res, next) {
     }
     console.log(`\x1b[33mGot a ${req.params.type} with ${idType.toUpperCase()} ID:\x1b[39m ${ID}`)
 
-    animeMetadataPromise = aniListAPI.GetAniListIDFromMOVIEDBID(idType, ID, season).catch((e)=>{//failed getting anilist ID
+    animeMetadataPromise = aniListAPI.GetAniListIDFromMOVIEDBID(idType, ID, season).catch((reason)=>{//failed getting anilist ID
       console.error(`\x1b[31mDidn't get AniList entry from ${idType.toUpperCase()} ID because:\x1b[39m`, reason)
       //If we got an empty response, we don't want to try anything else, as it will probably return false positives
       if (reason.message === "Empty response!") {
@@ -84,25 +84,7 @@ function HandleSubRequest(req, res, next) {
           res.json({ subtitles, message: "Failed getting media info" });
           next()
           throw err //We throw the error so we can catch it later
-        })/*.then((meta) => { //Get the romaji title from the metadata, and additionally search for Jimaku or AniList id
-          if (!meta.title) { throw Error("No title found in metadata!") } //If we don't have a title, we can't search for subtitles
-          //If we have a season, append it to the title, because Jimaku, Anilist and kitsunekko treat them as different entries and use the season number in the title
-          let query=meta.title
-          if (season !== undefined && season !== "1") { query = `${meta.title} ${season}` }
-          console.log('\x1b[33mSearching for metadata in Jimaku for\x1b[39m', query)
-          return jimakuAPI.SearchForJimakuEntry(query).catch((reason) => {
-            console.error("\x1b[31mDidn't get Jimaku entry because:\x1b[39m " + reason + ", \x1b[33msearching AniList...\x1b[39m")
-            return aniListAPI.GetAniListEntry(query).catch((reason) => {
-              console.error("\x1b[31mDidn't get AniList entry because:\x1b[39m", reason) //TODO: try "https://relations.yuna.moe/api/v2/imdb?id={IMDB ID}&include=anilist" to get AniList ID from IMDB ID
-              return meta
-            })
-          }).then((entry) => {
-            entry.title ||= meta.title //assign if it isn't empty
-            entry.tmdbID ||= meta.tmdbID
-            entry.imdbID = meta.imdbID //neither Jimaku or AniList assign imdbID, and worst case, it's the same
-            return entry
-          })
-        })*/
+        })
       }
     })
   } else if ((videoID?.startsWith("animeflv")) || (videoID?.startsWith("animeav1")) || (videoID?.startsWith("henaojara")) || (videoID?.startsWith("tioanime"))) { //If we got an AnimeFLV ID
@@ -174,7 +156,7 @@ function HandleSubRequest(req, res, next) {
     jimakuPromise = jimakuEntryPromise.then((jimakuEntry) => {
       console.log('\x1b[36mGot Jimaku entry:\x1b[39m', jimakuEntry.jimakuID)
       console.log('\x1b[33mSearching for subtitle files in Jimaku...\x1b[39m')
-      return jimakuAPI.GetJimakuFiles(jimakuEntry.jimakuID, episode, season).then((jimakuFiles) => {
+      return jimakuAPI.GetJimakuFiles(jimakuEntry.jimakuID, episode, season, res.locals?.extraParams?.filename).then((jimakuFiles) => {
         console.log(`\x1b[36mGot ${jimakuFiles.length} Jimaku files\x1b[39m`)
         subtitles = subtitles.concat(jimakuFiles) //Concat the files to the subtitles array
       }).catch((err) => {
@@ -193,7 +175,7 @@ function HandleSubRequest(req, res, next) {
     kitsunekkoPromise = romajiPromise.then((animeMeta) => {
       return kitsunekkoAPI.SearchForKitsunekkoEntry(animeMeta.title).then((foundAnime) => {
         console.log('\x1b[33mSearching for subtitle files in kitsunekko...\x1b[39m')
-        return kitsunekkoAPI.GetKitsunekkoSubtitles(foundAnime.url, episode, season).then((kitsunekkoSubs) => {
+        return kitsunekkoAPI.GetKitsunekkoSubtitles(foundAnime.url, episode, season, res.locals?.extraParams?.filename).then((kitsunekkoSubs) => {
           console.log(`\x1b[36mGot ${kitsunekkoSubs.length} kitsunekko files\x1b[39m`)
           subtitles = subtitles.concat(kitsunekkoSubs) //Concat the files to the subtitles array
         })
@@ -221,6 +203,12 @@ function HandleSubRequest(req, res, next) {
         res.json({ subtitles, message: "No subtitles found" });
         next()
       } else {
+        subtitles.sort((s1,s2)=>{//Put fileName matches on top
+          const s1F=s1.label?.includes("(File match!)");const s2F=s2.label?.includes("(File match!)")
+          if(s1F&&!s2F) return -1 //s1 before s2
+          else if(!s1F&&s2F) return 1 //s1 after s2
+          else return 0
+        })
         res.header('Cache-Control', "max-age=10800, stale-while-revalidate=3600, stale-if-error=259200");
         res.json({ subtitles, message: "Got Japanese subtitles!" });
         next()
