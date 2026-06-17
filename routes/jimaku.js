@@ -9,9 +9,9 @@ GetJimakuAuthToken = function () {
 }
 const JIMAKU_API_BASE = "https://jimaku.cc/api"
 //Only works for Live actions???
-exports.GetJimakuEntryFromTMDB = async function (tmdbID) {
+exports.GetJimakuEntryFromTMDB = async function (tmdbID, type="series") {
   const options = { headers: GetJimakuAuthToken() }
-  return fetch(`${JIMAKU_API_BASE}/entries/search?tmdb_id=tv:${tmdbID}`, options).then(HandleJimakuEntryResponse)
+  return fetch(`${JIMAKU_API_BASE}/entries/search?tmdb_id=${(type==="movie")?type:"tv"}:${tmdbID}`, options).then(HandleJimakuEntryResponse)
 }
 /**
  * @param {String} aniListID - AniList ID of the anime, like "12345"
@@ -38,7 +38,18 @@ function HandleJimakuEntryResponse(res) {
     //console.log("Jimaku search result:", data[0])
     if (data === undefined || !data[0]) throw Error("Invalid response!")
     //send first result
-    return data[0]
+    return data.map((e)=>{
+      return {
+        jimakuID: e.id,
+        title: e.name,
+        english_name: e.english_name,
+        japanese_name: e.japanese_name,
+        anilist_id: e.anilist_id,
+        type: (e.flags?.movie)?"movie":"series",
+        adult: e.flags?.adult,
+        tmdbID: e.tmdb_id?.replace("tv:","")?.replace("movie:","")
+      }
+    })[0]
   })
 }
 /**

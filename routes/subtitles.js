@@ -55,55 +55,55 @@ function HandleSubRequest(req, res, next) {
     }
     console.log(`\x1b[33mGot a ${req.params.type} with ${idType.toUpperCase()} ID:\x1b[39m ${ID}`)
 
-    animeMetadataPromise = aniListAPI.GetAniListIDFromMOVIEDBID(idType, ID, season).catch((reason) => {
-      //get title from TMDB or Cinemeta metadata
+    animeMetadataPromise = aniListAPI.GetAniListIDFromMOVIEDBID(idType, ID, season).catch((e)=>{//failed getting anilist ID
       console.error(`\x1b[31mDidn't get AniList entry from ${idType.toUpperCase()} ID because:\x1b[39m`, reason)
       //If we got an empty response, we don't want to try anything else, as it will probably return false positives
       if (reason.message === "Empty response!") {
         if (idType === "imdb") return { imdbID: ID } //If we got an IMDB ID, we can still try to get mySubs metadata
-        else if (idType === "tmdb") return Metadata.GetTMDBMetaFromTMDBID(ID, req.params.type) //If we got a TMDB ID, we can still try to get mySubs metadata
-        else throw reason //If we didn't get an IMDB ID and got an empty response from the relations API, there's nothing else we can do
-      }
-      console.log(`\x1b[33mGetting TMDB metadata for ${idType.toUpperCase()} ID:\x1b[39m`, ID)
-      const tmdbMetaPromise = (idType === "imdb") ?
-        Metadata.GetTMDBMeta(ID) : //If we got a IMDB ID
-        Metadata.GetTMDBMetaFromTMDBID(ID, req.params.type); //If we got a TMDB ID
-      return tmdbMetaPromise.then((TMDBmeta) => {
-        console.log('\x1b[36mGot TMDB metadata:\x1b[39m', TMDBmeta.shortPrint())
-        return TMDBmeta //We can use this to search for Jimaku subtitles
-      }).catch((reason) => {
-        console.error("\x1b[31mDidn't get TMDB metadata because:\x1b[39m " + reason)
-        if (idType === "imdb") { //If we got an IMDB ID, we can try to get the Cinemeta metadata
-          console.log(", trying Cinemeta...")
-          return Metadata.GetCinemetaMeta(ID, req.params.type).then((Cinemeta) => {
-            console.log('\x1b[36mGot Cinemeta metadata:\x1b[39m', Cinemeta.shortPrint())
-            return Cinemeta //We can use this to search for Jimaku subtitles
-          })
-        } else throw reason
-      }).catch((err) => { //only catches error from TMDB or Cinemeta API calls, which we want
-        console.error('\x1b[31mFailed on metadata:\x1b[39m ' + err)
-        res.json({ subtitles, message: "Failed getting media info" });
-        next()
-        throw err //We throw the error so we can catch it later
-      }).then((meta) => { //Get the romaji title from the metadata, and additionally search for Jimaku or AniList id
-        if (!meta.title) { throw Error("No title found in metadata!") } //If we don't have a title, we can't search for subtitles
-        //If we have a season, append it to the title, because Jimaku, Anilist and kitsunekko treat them as different entries and use the season number in the title
-        if (season !== undefined && season !== "1") { meta.title += ` ${season}` }
-        console.log('\x1b[33mSearching for metadata in Jimaku for\x1b[39m', meta.title)
-        return jimakuAPI.SearchForJimakuEntry(meta.title).then((entry) => {
-          entry.imdbID = meta.imdbID
-          return entry
-        }).catch((reason) => {
-          console.error("\x1b[31mDidn't get Jimaku entry because:\x1b[39m " + reason + ", \x1b[33msearching AniList...\x1b[39m")
-          return aniListAPI.GetAniListEntry(meta.title).then((entry) => {
-            entry.imdbID = meta.imdbID
+        else if (idType === "tmdb") return Metadata.GetTMDBMetaFromTMDBID(ID, req.params.type) //If we got a TMDB ID, we can still try to get mySubs/jimaku metadata
+        else throw reason //If we didn't get an IMDB/TMDB ID and got an empty response from the relations API, there's nothing else we can do
+      } else { //try getting metadata for other kinds of matches
+        console.log(`\x1b[33mGetting TMDB metadata for ${idType.toUpperCase()} ID:\x1b[39m`, ID)
+        const tmdbMetaPromise = (idType === "imdb") ?
+          Metadata.GetTMDBMeta(ID) : //If we got a IMDB ID
+          Metadata.GetTMDBMetaFromTMDBID(ID, req.params.type); //If we got a TMDB ID
+        return tmdbMetaPromise.then((TMDBmeta) => {
+          console.log('\x1b[36mGot TMDB metadata:\x1b[39m', TMDBmeta.shortPrint())
+          return TMDBmeta //We can use this to search for Jimaku subtitles
+        }).catch((reas)=>{//Failed getting TMDB meta
+          console.error("\x1b[31mDidn't get TMDB metadata because:\x1b[39m " + reas)
+          if (idType === "imdb") { //If we got an IMDB ID, we can try to get the Cinemeta metadata
+            console.log(", trying Cinemeta...")
+            return Metadata.GetCinemetaMeta(ID, req.params.type).then((Cinemeta) => {
+              console.log('\x1b[36mGot Cinemeta metadata:\x1b[39m', Cinemeta.shortPrint())
+              return Cinemeta //We can use this to search for Jimaku subtitles
+            })
+          } else throw reas
+        }).catch((err) => { //only catches error from TMDB or Cinemeta API calls, which we want
+          console.error('\x1b[31mFailed on metadata:\x1b[39m ' + err)
+          res.json({ subtitles, message: "Failed getting media info" });
+          next()
+          throw err //We throw the error so we can catch it later
+        })/*.then((meta) => { //Get the romaji title from the metadata, and additionally search for Jimaku or AniList id
+          if (!meta.title) { throw Error("No title found in metadata!") } //If we don't have a title, we can't search for subtitles
+          //If we have a season, append it to the title, because Jimaku, Anilist and kitsunekko treat them as different entries and use the season number in the title
+          let query=meta.title
+          if (season !== undefined && season !== "1") { query = `${meta.title} ${season}` }
+          console.log('\x1b[33mSearching for metadata in Jimaku for\x1b[39m', query)
+          return jimakuAPI.SearchForJimakuEntry(query).catch((reason) => {
+            console.error("\x1b[31mDidn't get Jimaku entry because:\x1b[39m " + reason + ", \x1b[33msearching AniList...\x1b[39m")
+            return aniListAPI.GetAniListEntry(query).catch((reason) => {
+              console.error("\x1b[31mDidn't get AniList entry because:\x1b[39m", reason) //TODO: try "https://relations.yuna.moe/api/v2/imdb?id={IMDB ID}&include=anilist" to get AniList ID from IMDB ID
+              return meta
+            })
+          }).then((entry) => {
+            entry.title ||= meta.title //assign if it isn't empty
+            entry.tmdbID ||= meta.tmdbID
+            entry.imdbID = meta.imdbID //neither Jimaku or AniList assign imdbID, and worst case, it's the same
             return entry
-          }).catch((reason) => {
-            console.error("\x1b[31mDidn't get AniList entry because:\x1b[39m", reason) //TODO: try "https://relations.yuna.moe/api/v2/imdb?id={IMDB ID}&include=anilist" to get AniList ID from IMDB ID
-            throw reason
           })
-        })
-      })
+        })*/
+      }
     })
   } else if ((videoID?.startsWith("animeflv")) || (videoID?.startsWith("animeav1")) || (videoID?.startsWith("henaojara")) || (videoID?.startsWith("tioanime"))) { //If we got an AnimeFLV ID
     const ID = idDetails[1] //We want the second part of the videoID, which is the animeFLV slug
@@ -140,42 +140,67 @@ function HandleSubRequest(req, res, next) {
   animeMetadataPromise.then((animeMetadata) => {
     if (!animeMetadata) { throw Error("No anime metadata found!") } //If we don't have metadata, we can't search for subtitles
     let jimakuPromise, kitsunekkoPromise, mySubsPromise
-    if (animeMetadata.anilist_id) {
-      console.log('\x1b[36mGot anime with AniList ID:\x1b[39m', animeMetadata.anilist_id)
-      //if we got the Jimaku ID already, the object will have an id property, and we can use it as is, otherwise try to get the Jimaku ID through the AniList ID
-      const jimakuEntryPromise = (animeMetadata.id) ?
-        Promise.resolve(animeMetadata) :
+    let jimakuEntryPromise;
+    if(animeMetadata.jimakuID) jimakuEntryPromise=Promise.resolve(animeMetadata)
+    else{//try alternatives
+      let anilistProm=(animeMetadata.anilist_id)?
         jimakuAPI.GetJimakuEntryFromAniList(animeMetadata.anilist_id).catch((err) => {
           console.error('\x1b[31mFailed getting Jimaku entry form AniList ID:\x1b[39m ' + err)
-        });
-      jimakuPromise = jimakuEntryPromise.then((jimakuEntry) => {
-        console.log('\x1b[36mGot Jimaku entry:\x1b[39m', jimakuEntry.id)
-        console.log('\x1b[33mSearching for subtitle files in Jimaku...\x1b[39m')
-        return jimakuAPI.GetJimakuFiles(jimakuEntry.id, episode, season).then((jimakuFiles) => {
-          console.log(`\x1b[36mGot ${jimakuFiles.length} Jimaku files\x1b[39m`)
-          subtitles = subtitles.concat(jimakuFiles) //Concat the files to the subtitles array
-        }).catch((err) => {
-          console.error('\x1b[31mFailed getting Jimaku files:\x1b[39m ' + err)
-        })
+          throw err
+        }):
+        Promise.reject("No AniList ID")
+
+      jimakuEntryPromise=anilistProm.catch((e)=>{
+        return (animeMetadata.tmdbID)?jimakuAPI.GetJimakuEntryFromTMDB(animeMetadata.tmdbID, req.params.type).catch((err) => {
+          console.error('\x1b[31mFailed getting Jimaku entry form TMDB ID:\x1b[39m ' + err)
+          throw err
+        }):Promise.reject("No TMDB ID")
+      }).catch((e)=>{
+        if(animeMetadata.title){
+          let query=animeMetadata.title
+          if (season !== undefined && season !== "1") { query = `${animeMetadata.title} ${season}` }
+          console.log('\x1b[33mSearching for metadata in Jimaku for\x1b[39m', query)
+          return jimakuAPI.SearchForJimakuEntry(query).catch((reason) => {
+            console.error("\x1b[31mDidn't get Jimaku entry because:\x1b[39m " + reason + ", \x1b[33msearching AniList...\x1b[39m")
+            throw reason
+          })
+        } else return Promise.reject("No title")
+      }).then((enrty)=>{
+        enrty.imdbID||=animeMetadata.title
+        enrty.tmdbID||=animeMetadata.tmdbID
+        return enrty
+      }).catch((e)=>console.error('\x1b[31mFailed getting Jimaku entry\x1b[39m ' + e))
+    }
+    jimakuPromise = jimakuEntryPromise.then((jimakuEntry) => {
+      console.log('\x1b[36mGot Jimaku entry:\x1b[39m', jimakuEntry.jimakuID)
+      console.log('\x1b[33mSearching for subtitle files in Jimaku...\x1b[39m')
+      return jimakuAPI.GetJimakuFiles(jimakuEntry.jimakuID, episode, season).then((jimakuFiles) => {
+        console.log(`\x1b[36mGot ${jimakuFiles.length} Jimaku files\x1b[39m`)
+        subtitles = subtitles.concat(jimakuFiles) //Concat the files to the subtitles array
+      }).catch((err) => {
+        console.error('\x1b[31mFailed getting Jimaku files:\x1b[39m ' + err)
       })
-      const romajiPromise = (animeMetadata.name) ?
-        Promise.resolve(animeMetadata) :
+    })
+    let romajiPromise
+    if(animeMetadata.title)romajiPromise=Promise.resolve(animeMetadata)
+    else romajiPromise=jimakuEntryPromise.catch((e)=>{
+      return (animeMetadata.anilist_id)?
         aniListAPI.GetAniListEntryByID(animeMetadata.anilist_id).catch((err) => {
           console.error('\x1b[31mFailed getting AniList entry form AniList ID:\x1b[39m ' + err)
           throw err //We throw the error so we can catch it later
-        });
-      kitsunekkoPromise = romajiPromise.then((animeMeta) => {
-        return kitsunekkoAPI.SearchForKitsunekkoEntry(animeMeta.name).then((foundAnime) => {
-          console.log('\x1b[33mSearching for subtitle files in kitsunekko...\x1b[39m')
-          return kitsunekkoAPI.GetKitsunekkoSubtitles(foundAnime.url, episode, season).then((kitsunekkoSubs) => {
-            console.log(`\x1b[36mGot ${kitsunekkoSubs.length} kitsunekko files\x1b[39m`)
-            subtitles = subtitles.concat(kitsunekkoSubs) //Concat the files to the subtitles array
-          })
-        }).catch((err) => {
-          console.error('\x1b[31mFailed getting kitsunekko subtitles:\x1b[39m ' + err)
+        }):Promise.reject("No AniList ID")
+    })
+    kitsunekkoPromise = romajiPromise.then((animeMeta) => {
+      return kitsunekkoAPI.SearchForKitsunekkoEntry(animeMeta.title).then((foundAnime) => {
+        console.log('\x1b[33mSearching for subtitle files in kitsunekko...\x1b[39m')
+        return kitsunekkoAPI.GetKitsunekkoSubtitles(foundAnime.url, episode, season).then((kitsunekkoSubs) => {
+          console.log(`\x1b[36mGot ${kitsunekkoSubs.length} kitsunekko files\x1b[39m`)
+          subtitles = subtitles.concat(kitsunekkoSubs) //Concat the files to the subtitles array
         })
+      }).catch((err) => {
+        console.error('\x1b[31mFailed getting kitsunekko subtitles:\x1b[39m ' + err)
       })
-    } else { jimakuPromise = kitsunekkoPromise = Promise.reject(Error("No AniList ID!")) }
+    })
 
     // if (animeMetadata.imdbID || animeMetadata.engTitle || animeMetadata.title) {
     //   console.log('\x1b[33mSearching for subtitle files in MySubs...\x1b[39m')
