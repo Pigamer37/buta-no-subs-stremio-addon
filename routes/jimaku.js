@@ -11,7 +11,18 @@ const JIMAKU_API_BASE = "https://jimaku.cc/api"
 //Only works for Live actions???
 exports.GetJimakuEntryFromTMDB = async function (tmdbID, type="series") {
   const options = { headers: GetJimakuAuthToken() }
-  return fetch(`${JIMAKU_API_BASE}/entries/search?tmdb_id=${(type==="movie")?type:"tv"}:${tmdbID}`, options).then(HandleJimakuEntryResponse)
+  let queryURL = new URL(`${JIMAKU_API_BASE}/entries/search`)
+  queryURL.searchParams.append("tmdb_id", `${(type==="movie")?type:"tv"}:${tmdbID}`)
+  return fetch(queryURL, options).then((res) => {
+    if (res === undefined) throw Error(`Undefined response!`)
+    if ((!res.ok) || res.status !== 200) throw Error(`HTTP error! Status: ${res.status}`)
+    return res.json().then((data) => {
+      if (data.length === 0) {
+        queryURL.searchParams.append("anime", false)
+        return fetch(queryURL, options)
+      }
+    })
+  }).then(HandleJimakuEntryResponse)
 }
 /**
  * @param {String} aniListID - AniList ID of the anime, like "12345"
@@ -103,7 +114,6 @@ function ParseJimakuFiles(data, seasonNumber=undefined,fileName=undefined) {
     })
   }
   let subtitles = []
-  console.log(data)
   for (const subEntry of data) {
     if(!/\.(?:srt|ass|ssa|vtt|ttml|sub)$/.test(subEntry.name)) continue //Only subtitle files
     const subName=subEntry.name.replace(/\.(?:srt|ass|ssa|vtt|ttml|sub)$/,"")
